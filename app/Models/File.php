@@ -16,15 +16,25 @@ class File extends Model
         'extension',
         'size',
         'status',
-        'result'
+        'total_sentences',
+        'plagiarized_sentences',
+        'similarity_percentage',
+        'total_images',       
+        'indicated_images',  
     ];
 
     protected $casts = [
-        'result' => 'array'
+        'result' => 'array',
+        'image_plagiarism_report' => 'array'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function imagePlagiarismReports()
+    {
+        return $this->hasMany(ImagePlagiarismReport::class);
     }
 }

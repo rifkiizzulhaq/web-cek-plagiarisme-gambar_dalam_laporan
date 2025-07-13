@@ -43,17 +43,23 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     
     // Route untuk user dan admin
     Route::get('/cek-plagiarisme', [CekPlagiarismeController::class, 'CekPlagiarisme'])
-        ->middleware('role:user,admin')
+        ->middleware('role:mahasiswa,admin')
         ->name('cek-plagiarisme');
     Route::post('/cek-plagiarisme/upload', [CekPlagiarismeController::class, 'upload'])
-        ->middleware('role:user,admin')
+        ->middleware('role:mahasiswa,admin')
         ->name('upload.file');
     Route::get('/cek-plagiarisme/document/{file_id}', [CekPlagiarismeController::class, 'viewDocument'])
-        ->middleware('role:user,admin')
+        ->middleware('role:mahasiswa,admin')
         ->name('view.document');
+    Route::get('/cek-plagiarisme/viewer/{file_id}', [CekPlagiarismeController::class, 'showViewer'])
+        ->middleware('role:mahasiswa,admin')
+        ->name('interactive.viewer');
+    Route::get('/cek-plagiarisme/file/{file_id}/content', [CekPlagiarismeController::class, 'getFileContent'])
+        ->middleware('role:mahasiswa,admin')
+        ->name('get.file.content');
 
     // Route untuk user
-    Route::middleware(['role:user'])->group(function () {
+    Route::middleware(['role:mahasiswa'])->group(function () {
         // Route untuk halaman utama user
         Route::get('/halaman-utama', [UserHalamanController::class, 'Index'])->name('halaman-utama');
     });

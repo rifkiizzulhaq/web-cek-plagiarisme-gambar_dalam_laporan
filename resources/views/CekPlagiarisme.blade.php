@@ -96,32 +96,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
 
-    // Prevent default drag behaviors
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-        document.body.addEventListener(eventName, preventDefaults, false);
-    });
-
-    // Highlight drop zone when item is dragged over it
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, unhighlight, false);
-    });
-
-    // Handle dropped files
-    dropArea.addEventListener('drop', handleDrop, false);
-
-    // Handle clicked files
-    dropArea.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFiles);
-
     function preventDefaults (e) {
         e.preventDefault();
         e.stopPropagation();
     }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        if (dropArea) {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        }
+    });
 
     function highlight(e) {
         dropArea.classList.add('bg-gray-50', 'dark:bg-neutral-700');
@@ -131,22 +116,35 @@ document.addEventListener('DOMContentLoaded', function() {
         dropArea.classList.remove('bg-gray-50', 'dark:bg-neutral-700');
     }
 
+    if (dropArea) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => fileInput.click());
+    }
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFiles);
+    }
+
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        handleFiles(files);
+        handleFiles({ target: { files: files } });
     }
 
     function handleFiles(e) {
-        const files = e.target?.files || e;
+        const files = e.target.files;
         if (files.length) {
-            const file = files[0];
-            uploadFile(file);
+            uploadFile(files[0]);
         }
     }
 
     function uploadFile(file) {
-        // Validate file type
         if (!file.name.toLowerCase().endsWith('.docx')) {
             showError('Hanya file .docx yang diperbolehkan');
             return;
@@ -157,37 +155,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
         progressArea.classList.remove('hidden');
         progressText.textContent = 'Mengupload...';
+        
+        const existingError = form.parentNode.querySelector('.error-message-container');
+        if (existingError) {
+            existingError.remove();
+        }
 
         fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
             }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 progressBar.style.width = '100%';
-                progressText.textContent = 'Upload berhasil!';
-                if (data.redirect) {
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 1000);
-                }
+                progressText.textContent = 'Upload berhasil! Mengalihkan...';
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1000);
             } else {
-                throw new Error(data.message);
+                throw new Error(data.message || 'Terjadi kesalahan yang tidak diketahui.');
             }
         })
         .catch(error => {
             showError(error.message);
+            progressBar.style.width = '0%';
             progressArea.classList.add('hidden');
         });
     }
 
     function showError(message) {
+        const errorContainer = form.parentNode;
+        
+        const existingError = errorContainer.querySelector('.error-message-container');
+        if (existingError) {
+            existingError.remove();
+        }
+
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'mt-4 p-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-800/10 dark:border-red-900/10';
+        errorDiv.className = 'error-message-container mt-4 p-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-800/10 dark:border-red-900/10';
         errorDiv.innerHTML = `
             <div class="flex">
                 <div class="flex-shrink-0">
@@ -198,12 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
-        const existingError = document.querySelector('.border-red-200');
-        if (existingError) {
-            existingError.remove();
-        }
-        form.parentNode.appendChild(errorDiv);
+        errorContainer.appendChild(errorDiv);
     }
 });
 </script>
