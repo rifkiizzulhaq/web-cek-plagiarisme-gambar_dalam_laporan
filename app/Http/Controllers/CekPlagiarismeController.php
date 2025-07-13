@@ -21,14 +21,26 @@ class CekPlagiarismeController extends Controller
 
     public function CekPlagiarisme()
     {
-        return view('CekPlagiarisme');
+        // Ambil daftar file milik pengguna yang sedang login
+        $query = File::where('user_id', auth()->id());
+
+        // Jika yang login adalah admin, tampilkan semua file
+        if (optional(auth()->user())->hasRole('admin')) {
+            $query = File::query();
+        }
+
+        // Urutkan dari yang terbaru dan gunakan paginasi
+        $files = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Kirim data 'files' ke view
+        return view('CekPlagiarisme', compact('files'));
     }
 
     public function upload(Request $request)
     {
         $path = null;
         try {
-            $request->validate(['file' => 'required|mimes:docx']);
+            $request->validate(['file' => 'required|mimes:docx|max:10240']);
 
             if (!$request->hasFile('file')) {
                 return response()->json(['success' => false, 'message' => 'Tidak ada file yang diupload'], 400);
@@ -107,14 +119,17 @@ class CekPlagiarismeController extends Controller
     public function viewDocument($file_id)
     {
         $file = File::with('imagePlagiarismReports')->findOrFail($file_id);
-
+        
+        if (auth()->id() !== $file->user_id && !optional(auth()->user())->hasRole('admin')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengakses dokumen ini.');
+        }
+        
         if ($file->status !== 'completed') {
             return view('ViewDocument', ['file' => $file, 'error' => 'Dokumen masih dalam proses.']);
         }
 
         return view('ViewDocument', [
             'file' => $file,
-            'statistics' => $file->result ?? [],
             'image_plagiarism_report' => $file->imagePlagiarismReports
         ]);
     }
@@ -122,13 +137,18 @@ class CekPlagiarismeController extends Controller
     public function getFileContent($file_id)
     {
         $file = File::findOrFail($file_id);
+
+        // Otorisasi: Hanya pemilik file atau admin yang bisa melihat
         if (auth()->id() !== $file->user_id && !optional(auth()->user())->hasRole('admin')) {
             abort(403, 'Akses ditolak.');
         }
+
         $path = storage_path('app/public/' . $file->path);
+
         if (!\Illuminate\Support\Facades\File::exists($path)) {
             abort(404, 'File fisik tidak ditemukan di server.');
         }
+
         return response()->file($path);
     }
 }

@@ -50,4 +50,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+    /**
+     * --- TAMBAHKAN METODE BARU INI ---
+     * Memeriksa apakah pengguna memiliki peran tertentu.
+     *
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole($roleName)
+    {
+        return $this->role && $this->role->name == $roleName;
+    }
 }

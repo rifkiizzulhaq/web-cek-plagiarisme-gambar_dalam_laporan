@@ -23,11 +23,6 @@ class File extends Model
         'indicated_images',  
     ];
 
-    protected $casts = [
-        'result' => 'array',
-        'image_plagiarism_report' => 'array'
-    ];
-
     public function user()
     {
         return $this->belongsTo(User::class);

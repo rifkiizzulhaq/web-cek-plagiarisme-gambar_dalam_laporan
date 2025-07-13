@@ -35,38 +35,36 @@
             </a>
           </li>
 
-          <li class="hs-accordion <?php echo e(Request::is('cek-plagiarisme') ? 'active' : ''); ?>" id="projects-accordion">
+          <li class="hs-accordion <?php echo e(Request::is('cek-plagiarisme*') ? 'active' : ''); ?>" id="projects-accordion">
             <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg dark:bg-neutral-700 focus:outline-none focus:bg-gray-100 dark:hover:bg-neutral-700 dark:text-neutral-200" data-hs-accordion-active-classes="bg-gray-100 dark:bg-neutral-700">
-              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <line x1="10" y1="9" x2="8" y2="9"/>
-              </svg>
-              Dokumen
-              
-              <svg class="hs-accordion-active:block ms-auto hidden size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-              
-              <svg class="hs-accordion-active:hidden ms-auto block size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <line x1="10" y1="9" x2="8" y2="9"/>
+                </svg>
+                Dokumen
+                
+                <svg class="hs-accordion-active:block ms-auto hidden size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                <svg class="hs-accordion-active:hidden ms-auto block size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
 
-            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo e(Request::is('cek-plagiarisme') ? '' : 'hidden'); ?>">
-              <ul class="ps-8 pt-1 space-y-1">
-                <li>
-                  <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg <?php echo e(Request::is('cek-plagiarisme') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100'); ?>" href="<?php echo e(route('cek-plagiarisme')); ?>">
-                    Cek Plagiarisme
-                  </a>
-                </li>
-                <?php if(Auth::user()->role->name === 'admin'): ?>
-                <!-- Menu khusus admin -->
-                <li>
-                  <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100" href="#">
-                    Menu Khusus Admin
-                  </a>
-                </li>
-                <?php endif; ?>
-              </ul>
+            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 <?php echo e(Request::is('cek-plagiarisme*') ? '' : 'hidden'); ?>">
+                <ul class="ps-8 pt-1 space-y-1">
+                    <li>
+                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg <?php echo e(Request::is('cek-plagiarisme*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100'); ?>" href="<?php echo e(route('cek-plagiarisme')); ?>">
+                            Cek Plagiarisme
+                        </a>
+                    </li>
+                    <?php if(Auth::user()->role->name === 'admin'): ?>
+                    <li>
+                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100" href="#">
+                        Menu Khusus Admin
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                </ul>
             </div>
           </li>
         </ul>

@@ -116,16 +116,7 @@ class DocxReader:
                 'timestamp': timestamp
             }
             
-            metadata_path = os.path.join(self.extract_dir, f'metadata_{timestamp}.txt')
-            os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
-            
-            with open(metadata_path, 'w', encoding='utf-8') as f:
-                for key, value in metadata.items():
-                    f.write(f"{key}: {value}\n")
-
-            metadata['saved_path'] = metadata_path
-            
-            return metadata
+            return metadata # Langsung kembalikan metadata tanpa menyimpannya ke file
             
         except Exception as e:
             logging.error(f"Error extracting metadata: {str(e)}")

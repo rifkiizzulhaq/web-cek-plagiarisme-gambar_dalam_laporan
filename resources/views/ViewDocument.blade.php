@@ -1,27 +1,35 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-                Hasil Pengecekan Plagiarisme
-            </h1>
-            @if(isset($file))
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ $file->name }}
-            </p>
-            @endif
+    {{-- Header yang Sudah Diperbaiki --}}
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-neutral-700 flex justify-between items-center">
+            <div>
+                <div class="mb-4">
+                    <a href="{{ route('cek-plagiarisme') }}" class="inline-flex items-center px-4 py-2 bg-red-400 dark:bg-neutral-700 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-200 uppercase tracking-widest hover:bg-red-500 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        Kembali
+                    </a>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+                    Hasil Pengecekan Plagiarisme
+                </h1>
+                @if(isset($file))
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {{ $file->name }}
+                </p>
+                @endif
+            </div>
         </div>
-
+        
         @if(isset($error))
             <div class="p-6">
                 <div class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/10 rounded-lg p-4">
                     <p class="text-sm text-red-700 dark:text-red-400">{{ $error }}</p>
                 </div>
             </div>
-        @elseif(isset($file) && isset($statistics))
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-6">
+        @elseif(isset($file))
+            <div id="stats-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-6 hidden">
                 {{-- Kartu Total Kalimat --}}
                 <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/10 rounded-lg p-4">
                     <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-400">Total Kalimat</h3>
@@ -52,7 +60,7 @@
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
                     Pratinjau Dokumen
                 </h2>
-                <div id="document-content" class="prose dark:prose-invert max-w-none bg-gray-50 dark:bg-neutral-900 rounded-lg p-4 overflow-auto max-h-[70vh] border dark:border-neutral-700">
+                <div id="document-content" class="prose dark:prose-invert max-w-none bg-gray-50 dark:bg-neutral-900 rounded-lg p-4 overflow-auto max-h-[90vh] border dark:border-neutral-700">
                     <p>Memuat pratinjau dokumen...</p>
                 </div>
             </div>
@@ -61,96 +69,67 @@
 </div>
 @endsection
 
-@push('scripts')
-
-    @push('styles')
+@push('styles')
     <style>
         .prose { line-height: 1.7; }
         .plagiarized-image {
             border: 4px solid #facc15 !important;
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
-        .plagiarism-tooltip {
-            visibility: hidden; width: 250px; background-color: #1f2937; color: #fff;
-            text-align: left; border-radius: 6px; padding: 10px; position: absolute;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            pointer-events: none;
-        }
-        .plagiarism-tooltip.visible { visibility: visible; opacity: 1; }
     </style>
-    @endpush
+@endpush
 
+@push('scripts')
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const contentDiv = document.getElementById('document-content');
-        
-        @if(isset($file))
-            const imagePlagiarismReport = @json($image_plagiarism_report ?? []);
-            let tooltip = document.createElement('div');
-            tooltip.className = 'plagiarism-tooltip';
-            document.body.appendChild(tooltip);
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentDiv = document.getElementById('document-content');
+            
+            @if(isset($file))
+                const imagePlagiarismReport = @json($image_plagiarism_report ?? []);
+                
+                if (contentDiv) {
+                    fetch("{{ route('get.file.content', ['file_id' => $file->id]) }}")
+                        .then(response => {
+                            if (!response.ok) throw new Error('Gagal memuat file dari server.');
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            const reader = new FileReader();
+                            reader.onload = function(loadEvent) {
+                                mammoth.convertToHtml({ arrayBuffer: loadEvent.target.result })
+                                    .then(result => {
+                                        contentDiv.innerHTML = result.value;
+                                        
+                                        const statsCards = document.getElementById('stats-cards');
+                                        if (statsCards) {
+                                            statsCards.classList.remove('hidden');
+                                        }
 
-            if (contentDiv) {
-                fetch("{{ route('get.file.content', ['file_id' => $file->id]) }}")
-                    .then(response => {
-                        if (!response.ok) throw new Error('Gagal memuat file dari server.');
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const reader = new FileReader();
-                        reader.onload = function(loadEvent) {
-                            mammoth.convertToHtml({ arrayBuffer: loadEvent.target.result })
-                                .then(result => {
-                                    contentDiv.innerHTML = result.value;
-                                    setTimeout(() => {
-                                        const imagesInDom = contentDiv.querySelectorAll('img');
-                                        imagesInDom.forEach((img, index) => {
-                                            const reportItem = imagePlagiarismReport.find(item => item.source_image_index === index);
-                                            
-                                            img.style.height = '400px';
-                                            img.style.width = '100%';
-                                            img.style.objectFit = 'contain';
-                                            img.style.backgroundColor = '#f8f9fa';
-                                            img.style.border = '1px solid #dee2e6';
-                                            img.style.padding = '0.5rem';
-                                            img.style.marginBottom = '1.5em';
+                                        setTimeout(() => {
+                                            const imagesInDom = contentDiv.querySelectorAll('img');
+                                            imagesInDom.forEach((img, index) => {
+                                                const reportItem = imagePlagiarismReport.find(item => item.source_image_index === index);
 
-                                            if (reportItem) {
-                                                img.style.border = '4px solid #facc15';
-                                                img.style.boxShadow = '0 0 15px rgba(250, 204, 21, 0.5)';
-                                                
-                                                img.addEventListener('mousemove', (e) => {
-                                                    tooltip.style.top = (e.pageY + 20) + 'px';
-                                                    tooltip.style.left = (e.pageX + 20) + 'px';
-                                                });
-                                                
-                                                img.addEventListener('mouseenter', (e) => {
-                                                    const similarity = (reportItem.similarity * 100).toFixed(2);
-                                                    tooltip.innerHTML = `
-                                                        <strong>Gambar Mirip Terdeteksi</strong><br>
-                                                        Dokumen Sumber: <strong>${reportItem.match_doc_title}</strong><br>
-                                                        Nama Gambar Asli: ${reportItem.match_image}<br>
-                                                        Tingkat Kemiripan: <strong>${similarity}%</strong>
-                                                    `;
-                                                    tooltip.classList.add('visible');
-                                                });
+                                                img.style.height = '400px';
+                                                img.style.width = '100%';
+                                                img.style.objectFit = 'contain';
+                                                img.style.backgroundColor = '#f8f9fa';
+                                                img.style.border = '1px solid #dee2e6';
+                                                img.style.padding = '0.5rem';
+                                                img.style.marginBottom = '1.5em';
 
-                                                img.addEventListener('mouseleave', () => {
-                                                    tooltip.classList.remove('visible');
-                                                });
-                                            }
+                                                if (reportItem) {
+                                                    img.style.border = '4px solid #facc15';
+                                                    img.style.boxShadow = '0 0 15px rgba(250, 204, 21, 0.5)';
+                                                }
                                         });
                                     }, 100);
                                 });
-                        };
+                            };
                         reader.readAsArrayBuffer(blob);
                     });
-            }
-        @endif
-    });
+                }
+            @endif
+        });
     </script>
 @endpush

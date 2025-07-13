@@ -12,37 +12,34 @@
             </div>
 
             <div class="mt-5">
+                {{-- Form Upload --}}
                 <form id="uploadForm" action="{{ route('upload.file') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="grid gap-y-4">
-                        <!-- File Upload Area -->
+                        {{-- File Upload Area --}}
                         <div class="flex justify-center">
                             <div class="w-full">
                                 <div id="drop-area" class="relative border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors duration-200 ease-in-out dark:hover:bg-neutral-700">
-                                    <!-- Icon -->
                                     <div class="flex justify-center mb-4">
+                                        {{-- Icon --}}
                                         <svg class="size-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                             <polyline points="17 8 12 3 7 8"></polyline>
                                             <line x1="12" x2="12" y1="3" y2="15"></line>
                                         </svg>
                                     </div>
-                                    
-                                    <!-- Text -->
                                     <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white">
                                         Drop your file here or <span class="text-blue-600">browse</span>
                                     </h3>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                         Format file .docx
                                     </p>
-
-                                    <!-- Hidden File Input -->
                                     <input type="file" id="fileInput" name="file" class="hidden" accept=".docx">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Progress Bar (Hidden by default) -->
+                        {{-- Progress Bar --}}
                         <div id="progress-area" class="hidden">
                             <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                                 <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
@@ -52,39 +49,93 @@
                     </div>
                 </form>
 
-                @if(session('success'))
-                <div class="mt-4 p-4 border border-green-200 rounded-lg bg-green-50 dark:bg-green-800/10 dark:border-green-900/10">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="size-4 text-green-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        </div>
-                        <div class="ms-3">
-                            <p class="text-sm text-green-700 dark:text-green-400">
-                                {{ session('success') }}
-                            </p>
+                {{-- PERBAIKAN 1: BLOK PESAN ERROR & SUKSES DIPINDAHKAN KE SINI --}}
+                <div class="mt-4 space-y-4">
+                    @if(session('success'))
+                    <div class="p-4 border border-green-200 rounded-lg bg-green-50 dark:bg-green-800/10 dark:border-green-900/10">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="size-4 text-green-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-sm text-green-700 dark:text-green-400">
+                                    {{ session('success') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                @endif
+                    @endif
 
-                @if($errors->any())
-                <div class="mt-4 p-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-800/10 dark:border-red-900/10">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="size-4 text-red-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                        </div>
-                        <div class="ms-3">
-                            <p class="text-sm text-red-700 dark:text-red-400">
-                                {{ $errors->first() }}
-                            </p>
+                    @if($errors->any())
+                    <div class="p-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-800/10 dark:border-red-900/10">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="size-4 text-red-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-sm text-red-700 dark:text-red-400">
+                                    {{ $errors->first() }}
+                                </p>
+                            </div>
                         </div>
                     </div>
+                    @endif
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    {{-- Blok Riwayat Unggahan --}}
+    <div class="mt-10">
+        <div class="bg-white shadow-sm rounded-xl dark:bg-neutral-800">
+            <div class="p-4 sm:p-7">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                    Riwayat Unggahan
+                </h2>
+
+                @if($files->isNotEmpty())
+                    {{-- PERBAIKAN 2: TAMBAHKAN DIV INI UNTUK MEMBUAT AREA SCROLL --}}
+                    <div class="space-y-4 max-h-32 overflow-y-auto pr-2"> 
+                        @foreach($files as $file)
+                            <div class="flex justify-between items-center p-4 border rounded-lg dark:border-neutral-700">
+                                <div class="flex items-center">
+                                    {{-- PERUBAHAN 1: Tambahkan Nomor Urut --}}
+                                    <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mr-4">{{ $loop->iteration }}.</p>
+                                    
+                                    <div>
+                                        <p class="font-semibold text-gray-800 dark:text-white">{{ $file->name }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{-- PERUBAHAN 2: Hapus Format Waktu (H:i) --}}
+                                            Diupload pada: {{ $file->created_at->format('d M Y') }}
+                                        </p>
+                                        @if(optional(auth()->user())->hasRole('admin'))
+                                            <p class="text-xs text-blue-500">
+                                                Oleh: {{ $file->user->name }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{{ route('view.document', $file->id) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        Lihat Hasil
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Link Paginasi --}}
+                    <div class="mt-6">
+                        {{ $files->links() }}
+                    </div>
+                @else
+                    <p class="text-center text-gray-500 dark:text-gray-400">Anda belum pernah mengunggah dokumen.</p>
                 @endif
             </div>
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
@@ -213,6 +264,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-
-@endsection
 

@@ -56,10 +56,6 @@ def check_plagiarism():
                 extracted_image_path = os.path.join(app.config['IMAGE_FOLDER'], image_data.get('path', ''))
                 if os.path.exists(extracted_image_path):
                     os.remove(extracted_image_path)
-            if doc_content.get('metadata', {}).get('saved_path'):
-                if os.path.exists(doc_content['metadata']['saved_path']):
-                    os.remove(doc_content['metadata']['saved_path'])
-            
             original_doc = db_manager.get_document_metadata(doc_id)
             message = "Dokumen ini sudah pernah diunggah."
             if original_doc and original_doc.get('created_at'):

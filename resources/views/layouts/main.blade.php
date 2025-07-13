@@ -20,7 +20,7 @@
             
             <!-- Content -->
             <div class="w-full lg:pl-64">
-                <main class="p-4 sm:p-6 lg:p-8">
+                <main class="px-4 py-2 sm:p-6 lg:p-8">
                     @yield('content')
                 </main>
             </div>
