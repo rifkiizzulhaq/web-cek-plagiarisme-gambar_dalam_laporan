@@ -29,7 +29,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
-    // Route untuk Google login
+    // // Route untuk Google login
     Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
     Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 });
@@ -40,7 +40,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Route untuk user dan admin
     Route::get('/cek-plagiarisme', [CekPlagiarismeController::class, 'CekPlagiarisme'])
         ->middleware('role:mahasiswa,admin')
