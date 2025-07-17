@@ -39,12 +39,10 @@ class RegisteredUserController extends Controller
                 'email', 
                 'max:255', 
                 'unique:'.User::class,
-                // Aturan baru: Minimal harus ada 2 karakter sebelum @
                 'regex:/^.{10,}@.*$/' 
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
-            // Pesan error kustom untuk aturan regex
             'email.regex' => 'Nama pengguna email harus memiliki minimal 10 karakter.'
         ]);
     
@@ -52,7 +50,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 2, // Role ID untuk mahasiswa
+            'role_id' => 2,
         ]);
     
         event(new Registered($user));

@@ -20,7 +20,6 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        // Cek apakah role user ada dalam array roles yang diizinkan
         if (!in_array(Auth::user()->role->name, $roles)) {
             if (Auth::user()->role->name === 'admin') {
                 return redirect()->route('admin.admin-halaman-utama');

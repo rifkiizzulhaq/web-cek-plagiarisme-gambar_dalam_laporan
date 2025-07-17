@@ -67,7 +67,6 @@
                     </div>
                 </form>
 
-                {{-- PERBAIKAN 1: BLOK PESAN ERROR & SUKSES DIPINDAHKAN KE SINI --}}
                 <div class="mt-4 space-y-4">
                     @if(session('success'))
                     <div class="p-4 border border-green-200 rounded-lg bg-green-50 dark:bg-green-800/10 dark:border-green-900/10">
@@ -103,7 +102,6 @@
         </div>
     </div>
 
-    {{-- Blok Riwayat Unggahan --}}
     <div class="mt-10">
         <div class="bg-white shadow-sm rounded-xl dark:bg-neutral-800">
             <div class="p-4 sm:p-7">
@@ -112,18 +110,15 @@
                 </h2>
 
                 @if($files->isNotEmpty())
-                    {{-- PERBAIKAN 2: TAMBAHKAN DIV INI UNTUK MEMBUAT AREA SCROLL --}}
                     <div class="space-y-4 max-h-32 overflow-y-auto pr-2">
                         @foreach($files as $file)
                             <div class="flex justify-between items-center p-4 border rounded-lg dark:border-neutral-700">
                                 <div class="flex items-center">
-                                    {{-- PERUBAHAN 1: Tambahkan Nomor Urut --}}
                                     <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mr-4">{{ $files->firstItem() + $loop->index }}.</p>
 
                                     <div>
                                         <p class="font-semibold text-gray-800 dark:text-white">{{ $file->name }}</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{-- PERUBAHAN 2: Hapus Format Waktu (H:i) --}}
                                             Diupload pada: {{ $file->created_at->format('d M Y') }}
                                         </p>
                                         @if(optional(auth()->user())->hasRole('admin'))

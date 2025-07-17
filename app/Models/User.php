@@ -60,7 +60,6 @@ class User extends Authenticatable
         return $this->hasMany(File::class);
     }
     /**
-     * --- TAMBAHKAN METODE BARU INI ---
      * Memeriksa apakah pengguna memiliki peran tertentu.
      *
      * @param string $roleName

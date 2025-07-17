@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 use App\Rules\NameFormatRule;
 use App\Rules\EmailUsernameFormatRule;
 use App\Rules\KelasDetailFormatRule;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MahasiswaExport;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules;
 
 class AdminController extends Controller
 {
@@ -158,5 +159,9 @@ class AdminController extends Controller
 
         return redirect()->route('admin.mahasiswa.index')
                         ->with('error', 'Tidak ada mahasiswa yang dipilih untuk dihapus.');
+    }
+    public function exportMahasiswa() 
+    {
+        return Excel::download(new MahasiswaExport, 'daftar-mahasiswa.xlsx');
     }
 }

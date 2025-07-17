@@ -63,13 +63,14 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     
             // Rute untuk CRUD Mahasiswa
             Route::get('/mahasiswa', [AdminController::class, 'indexMahasiswa'])->name('mahasiswa.index');
+            Route::get('/mahasiswa/export', [AdminController::class, 'exportMahasiswa'])->name('mahasiswa.export');
             Route::get('/mahasiswa/create', [AdminController::class, 'createMahasiswa'])->name('mahasiswa.create');
             Route::post('/mahasiswa', [AdminController::class, 'storeMahasiswa'])->name('mahasiswa.store');
-            Route::get('/mahasiswa/{mahasiswa}', [AdminController::class, 'showMahasiswa'])->name('mahasiswa.show');
+            Route::get('/mahasiswa/{mahasiswa}', [AdminController::class, 'showMahasiswa'])->whereNumber('mahasiswa')->name('mahasiswa.show');
             Route::get('/mahasiswa/{mahasiswa}/edit', [AdminController::class, 'editMahasiswa'])->name('mahasiswa.edit');
             Route::put('/mahasiswa/{mahasiswa}', [AdminController::class, 'updateMahasiswa'])->name('mahasiswa.update');
+            Route::delete('/mahasiswa/bulk-destroy', [AdminController::class, 'bulkDestroyMahasiswa'])->name('mahasiswa.bulkDestroy');
             Route::delete('/mahasiswa/{mahasiswa}', [AdminController::class, 'destroyMahasiswa'])->name('mahasiswa.destroy');
-            Route::post('/mahasiswa/bulk-destroy', [AdminController::class, 'bulkDestroyMahasiswa'])->name('mahasiswa.bulkDestroy');
         }
     );
 });

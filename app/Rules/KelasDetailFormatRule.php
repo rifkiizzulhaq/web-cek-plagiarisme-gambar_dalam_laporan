@@ -26,15 +26,13 @@ class KelasDetailFormatRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // 1. Cek format umum: harus [Angka][Huruf]
         if (!preg_match('/^(\d)([A-Za-z])$/', $value, $matches)) {
             $fail('Format Detail Kelas harus satu angka diikuti satu huruf (contoh: 4A).');
             return;
         }
 
-        $tahunKelas = (int) $matches[1]; // Ambil angka tahunnya
+        $tahunKelas = (int) $matches[1];
 
-        // 2. Cek rentang angka berdasarkan prodi yang dipilih
         if (str_starts_with($this->prodi, 'D4')) {
             if ($tahunKelas < 1 || $tahunKelas > 4) {
                 $fail('Untuk program D4, tahun kelas harus antara 1 dan 4.');

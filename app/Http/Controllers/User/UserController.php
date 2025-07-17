@@ -27,11 +27,10 @@ class UserController extends Controller
 
     public function CekPlagiarisme()
     {
-        $user = auth()->user(); // Ambil data pengguna
+        $user = auth()->user();
         $query = File::where('user_id', $user->id);
         $files = $query->orderBy('created_at', 'asc')->paginate(10);
         
-        // Kirim 'user' dan 'files' ke view
         return view('CekPlagiarisme', compact('files', 'user'));
     }
 
@@ -41,11 +40,10 @@ class UserController extends Controller
         if (!$user->nim || !$user->prodi || !$user->angkatan || !$user->kelas) {
             return response()->json([
                 'success' => false,
-                // Pesan ini akan ditangkap oleh SweetAlert
                 'message' => 'Lengkapi data profil Anda (NIM, Prodi, dll.) terlebih dahulu untuk bisa mengunggah file.',
                 'action' => 'redirect_to_profile',
                 'redirect_url' => route('profile.edit')
-            ], 403); // 403 Forbidden
+            ], 403);
         }
 
         $path = null;
@@ -148,7 +146,6 @@ class UserController extends Controller
     {
         $file = File::findOrFail($file_id);
 
-        // Otorisasi: Hanya pemilik file atau admin yang bisa melihat
         if (auth()->id() !== $file->user_id && !optional(auth()->user())->hasRole('admin')) {
             abort(403, 'Akses ditolak.');
         }

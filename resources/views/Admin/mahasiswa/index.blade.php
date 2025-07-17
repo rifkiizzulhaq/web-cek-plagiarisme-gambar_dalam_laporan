@@ -2,15 +2,19 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    {{-- Header dan Tombol Tambah --}}
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Kelola Akun Mahasiswa</h1>
-        <a href="{{ route('admin.mahasiswa.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-            Tambah Mahasiswa
-        </a>
+        
+        <div class="flex gap-x-2">
+            <a href="{{ route('admin.mahasiswa.export') }}" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700">
+                Export Excel
+            </a>
+            <a href="{{ route('admin.mahasiswa.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                Tambah Mahasiswa
+            </a>
+        </div>
     </div>
 
-    {{-- Struktur Tabel Baru --}}
     <div class="flex flex-col">
         <div class="-m-1.5 overflow-x-auto">
             <div class="p-1.5 min-w-full inline-block align-middle">
@@ -30,31 +34,27 @@
                             </div>
                         </form>
                         
-                        {{-- Tombol Aksi Massal di Kanan --}}
-                        <div id="bulk-actions" class="hidden">
+                        <form id="bulk-delete-form" action="{{ route('admin.mahasiswa.bulkDestroy') }}"
+                            method="POST" class="hidden">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="ids" id="ids-to-delete">
                             <button type="button" id="delete-selected-btn" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700">
                                 Hapus yang Terpilih
                             </button>
-                        </div>
+                        </form>
                     </div>
-
-                    {{-- Form Tersembunyi bisa tetap di luar div flexbox --}}
-                    <form id="bulk-delete-form" action="{{ route('admin.mahasiswa.bulkDestroy') }}" method="POST" class="hidden">
-                        @csrf
-                        
-                        <input type="hidden" name="ids" id="ids-to-delete">
-                    </form>
+                    
                     <div class="overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
                         <thead class="bg-gray-50 dark:bg-neutral-700">
                             <tr>
-                                <th scope="col" class="py-3 ps-4 pe-0"> {{-- Padding disesuaikan --}}
+                                <th scope="col" class="py-3 ps-4 pe-0">
                                     <div class="flex items-center h-5">
                                         <input id="hs-table-pagination-checkbox-all" type="checkbox" class="border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500">
                                         <label for="hs-table-pagination-checkbox-all" class="sr-only">Checkbox</label>
                                     </div>
                                 </th>
-                                {{-- PERBAIKAN PADDING DAN ALIGNMENT --}}
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">No.</th>
                                 <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Nama</th>
                                 <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Email</th>
@@ -109,21 +109,19 @@
 </div>
 @endsection
 
-{{-- Tambahkan ini di bagian bawah file Admin/mahasiswa/index.blade.php --}}
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // === Seleksi Elemen ===
+    
     const selectAllCheckbox = document.getElementById('hs-table-pagination-checkbox-all');
     const rowCheckboxes = document.querySelectorAll('.row-checkbox');
     const deleteForms = document.querySelectorAll('.delete-form');
-    const bulkActionsDiv = document.getElementById('bulk-actions');
+    const bulkActionsDiv = document.getElementById('bulk-delete-form');
     const deleteSelectedBtn = document.getElementById('delete-selected-btn');
     const bulkDeleteForm = document.getElementById('bulk-delete-form');
     const idsToDeleteInput = document.getElementById('ids-to-delete');
     const storageKey = 'checkedMahasiswaIds';
 
-    // === FUNGSI-FUNGSI UTAMA ===
     function saveCheckedState() {
         const checkedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
         sessionStorage.setItem(storageKey, JSON.stringify(checkedIds));
@@ -138,11 +136,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Fungsi terpusat untuk memperbarui seluruh UI
     function updateUiState() {
         const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
 
-        // Tampilkan/sembunyikan aksi per baris dengan animasi
         rowCheckboxes.forEach(checkbox => {
             const row = checkbox.closest('tr');
             if (row) {
@@ -155,18 +151,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
-        // Tampilkan/sembunyikan tombol aksi massal (jika lebih dari 1 yang dipilih)
+        
         if (bulkActionsDiv) {
             bulkActionsDiv.classList.toggle('hidden', checkedCount < 2);
         }
 
-        // Sinkronkan checkbox "pilih semua"
+        
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = rowCheckboxes.length > 0 && checkedCount === rowCheckboxes.length;
         }
     }
 
-    // --- EVENT LISTENERS ---
+    
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function () {
             rowCheckboxes.forEach(checkbox => {
@@ -184,14 +180,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     
-    // --- EKSEKUSI AWAL ---
+    
     loadCheckedState();
     updateUiState();
 
-    // Event listener untuk tombol hapus massal (SweetAlert)
+    
     if (deleteSelectedBtn) {
         deleteSelectedBtn.addEventListener('click', function() {
-            const checkedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            const checkedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                          .map(cb => cb.value);
             Swal.fire({
                 title: `Hapus ${checkedIds.length} mahasiswa?`,
                 text: "Data yang dihapus tidak dapat dikembalikan!",
@@ -211,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Event listener untuk tombol hapus per baris (SweetAlert)
+    
     deleteForms.forEach(form => {
         form.addEventListener('submit', function (event) {
             event.preventDefault();

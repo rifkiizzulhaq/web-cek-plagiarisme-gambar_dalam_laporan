@@ -97,15 +97,12 @@ unset($__errorArgs, $__bag); ?>
                     <label for="email" class="block text-sm font-medium mb-2 dark:text-white">Email</label>
                     
                     <?php if($mahasiswa->google_id): ?>
-                        
                         <input id="email" name="email" type="email" 
                                class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700" 
                                value="<?php echo e($mahasiswa->email); ?>" 
                                readonly>
                         <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena terhubung dengan akun Google.</p>
-                    
                     <?php else: ?>
-                        
                         <?php
                             $emailParts = explode('@gmail.com', old('email', $mahasiswa->email));
                             $emailUsername = $emailParts[0];
@@ -176,26 +173,21 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const prodiAbbreviations = <?php echo json_encode($prodiAbbreviations, 15, 512) ?>;
 
-    if (!form) return; // Keluar jika form tidak ditemukan
+    if (!form) return;
 
     let isFormDirty = false;
 
-    // Tandai bahwa form sudah diubah jika ada input
     form.addEventListener('input', function() {
         isFormDirty = true;
     });
-
-    // Saat form di-submit (diklik Simpan/Update), jangan tampilkan pop-up
     form.addEventListener('submit', function() {
         isFormDirty = false;
     });
 
-    // Saat pengguna mencoba meninggalkan halaman
     window.addEventListener('beforeunload', function (e) {
-        // Jika form sudah diubah, tampilkan konfirmasi
         if (isFormDirty) {
-            e.preventDefault(); // Diperlukan oleh beberapa browser
-            e.returnValue = ''; // Standar untuk menampilkan dialog konfirmasi
+            e.preventDefault();
+            e.returnValue = '';
         }
     });
 
@@ -210,12 +202,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateFullEmail() {
         if(emailUsernameInput && fullEmailInput) {
             let username = emailUsernameInput.value;
-            // Cek apakah pengguna sudah mengetik '@'
             if (username.includes('@gmail.com')) {
-                // Jika ya, gunakan input pengguna apa adanya
                 fullEmailInput.value = username;
             } else {
-                // Jika tidak, tambahkan '@gmail.com'
                 fullEmailInput.value = username + '@gmail.com';
             }
         }
@@ -228,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function () {
         prodiSelect.addEventListener('change', updatePrefix);
     }
 
-    // Panggil saat halaman dimuat
     updatePrefix();
 });
 </script>

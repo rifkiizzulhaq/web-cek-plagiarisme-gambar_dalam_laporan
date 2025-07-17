@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('source_image');
             $table->string('match_image');
             $table->text('match_doc_title');
-            $table->float('similarity', 5, 4); // 5 total digit, 4 di belakang koma (contoh: 0.9876)
+            $table->float('similarity', 5, 4);
             $table->timestamps();
         });
     }
