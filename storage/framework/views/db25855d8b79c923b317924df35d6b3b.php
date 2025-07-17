@@ -250,6 +250,16 @@
     </form>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            <?php if(session('status')): ?>
+                Swal.fire({
+                    title: 'Registrasi Berhasil!',
+                    text: '<?php echo e(session('status')); ?>',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            <?php endif; ?>
+        });
         function togglePassword() {
             const password = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');

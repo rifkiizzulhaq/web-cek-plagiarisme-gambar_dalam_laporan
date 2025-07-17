@@ -7,6 +7,7 @@
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{{ asset('Image/logo_polindra.png') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
         <title>
             @if(Request::routeIs('login'))
@@ -48,5 +49,6 @@
                 </div>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </body>
 </html>

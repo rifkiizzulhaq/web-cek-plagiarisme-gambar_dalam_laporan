@@ -7,7 +7,7 @@
         <div class="px-6 py-4 border-b border-gray-200 dark:border-neutral-700 flex justify-between items-center">
             <div>
                 <div class="mb-4">
-                    <a href="{{ route('cek-plagiarisme') }}" class="inline-flex items-center px-4 py-2 bg-red-400 dark:bg-neutral-700 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-200 uppercase tracking-widest hover:bg-red-500 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <a href="{{ route('mahasiswa.cek-plagiarisme') }}" class="inline-flex items-center px-4 py-2 bg-red-400 dark:bg-neutral-700 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-200 uppercase tracking-widest hover:bg-red-500 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         Kembali
                     </a>
                 </div>
@@ -88,7 +88,7 @@
                 const imagePlagiarismReport = @json($image_plagiarism_report ?? []);
                 
                 if (contentDiv) {
-                    fetch("{{ route('get.file.content', ['file_id' => $file->id]) }}")
+                    fetch("{{ route('mahasiswa.get.file.content', ['file_id' => $file->id]) }}")
                         .then(response => {
                             if (!response.ok) throw new Error('Gagal memuat file dari server.');
                             return response.blob();

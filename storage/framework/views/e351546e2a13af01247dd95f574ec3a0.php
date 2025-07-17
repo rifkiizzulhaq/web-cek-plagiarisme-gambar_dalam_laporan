@@ -1,4 +1,22 @@
 <?php $__env->startSection('content'); ?>
+
+<?php if($user->hasRole('mahasiswa') && (!$user->nim || !$user->prodi || !$user->angkatan || !$user->kelas)): ?>
+<div class="max-w-4xl mx-auto">
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 dark:bg-yellow-800/20 dark:border-yellow-600">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.03-1.742 3.03H4.42c-1.53 0-2.493-1.696-1.743-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700 dark:text-yellow-200">
+                    Profil Anda belum lengkap. Silakan lengkapi data di halaman <a href="<?php echo e(route('profile.edit')); ?>" class="font-bold underline hover:text-yellow-600">Profil Saya</a> untuk bisa mengunggah dokumen.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="max-w-4xl mx-auto">
     <div class="bg-white shadow-sm rounded-xl dark:bg-neutral-800">
         <div class="p-4 sm:p-7">
@@ -11,7 +29,7 @@
 
             <div class="mt-5">
                 
-                <form id="uploadForm" action="<?php echo e(route('upload.file')); ?>" method="POST" enctype="multipart/form-data">
+                <form id="uploadForm" action="<?php echo e(route('mahasiswa.upload.file')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <div class="grid gap-y-4">
                         
@@ -84,7 +102,7 @@
             </div>
         </div>
     </div>
-    
+
     
     <div class="mt-10">
         <div class="bg-white shadow-sm rounded-xl dark:bg-neutral-800">
@@ -95,13 +113,13 @@
 
                 <?php if($files->isNotEmpty()): ?>
                     
-                    <div class="space-y-4 max-h-32 overflow-y-auto pr-2"> 
+                    <div class="space-y-4 max-h-32 overflow-y-auto pr-2">
                         <?php $__currentLoopData = $files; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="flex justify-between items-center p-4 border rounded-lg dark:border-neutral-700">
                                 <div class="flex items-center">
                                     
-                                    <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mr-4"><?php echo e($loop->iteration); ?>.</p>
-                                    
+                                    <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mr-4"><?php echo e($files->firstItem() + $loop->index); ?>.</p>
+
                                     <div>
                                         <p class="font-semibold text-gray-800 dark:text-white"><?php echo e($file->name); ?></p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -118,7 +136,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="<?php echo e(route('view.document', $file->id)); ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                    <a href="<?php echo e(route('mahasiswa.view.document', $file->id)); ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                         Lihat Hasil
                                     </a>
                                 </div>
@@ -180,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dropArea.addEventListener('drop', handleDrop, false);
         dropArea.addEventListener('click', () => fileInput.click());
     }
-    
+
     if (fileInput) {
         fileInput.addEventListener('change', handleFiles);
     }
@@ -209,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         progressArea.classList.remove('hidden');
         progressText.textContent = 'Mengupload...';
-        
+
         const existingError = form.parentNode.querySelector('.error-message-container');
         if (existingError) {
             existingError.remove();
@@ -236,16 +254,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            showError(error.message);
+            // 'data' mungkin tidak ada, jadi kita beri objek kosong
+            showError(error.message, error.responseJSON || {}); 
             progressBar.style.width = '0%';
             progressArea.classList.add('hidden');
         });
     }
 
-    function showError(message) {
+    function showError(message, data = {}) {
         const errorContainer = form.parentNode;
-        
         const existingError = errorContainer.querySelector('.error-message-container');
+
+        if (data.action === 'redirect_to_profile') {
+            Swal.fire({
+                title: 'Profil Tidak Lengkap',
+                text: message,
+                icon: 'warning',
+                confirmButtonText: 'Lengkapi Profil',
+                showCancelButton: true,
+                cancelButtonText: 'Nanti Saja'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = data.redirect_url;
+                }
+            });
+        } else {
+            // Notifikasi error biasa
+            Swal.fire({
+                title: 'Terjadi Kesalahan',
+                text: message,
+                icon: 'error'
+            });
+        }
+
         if (existingError) {
             existingError.remove();
         }

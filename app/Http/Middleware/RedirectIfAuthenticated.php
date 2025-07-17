@@ -22,9 +22,9 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 if (Auth::user()->role->name === 'admin') {
-                    return redirect()->route('admin-halaman-utama');
+                    return redirect()->route('admin.admin-halaman-utama');
                 }
-                return redirect()->route('halaman-utama');
+                return redirect()->route('mahasiswa.cek-plagiarisme');
             }
         }
 

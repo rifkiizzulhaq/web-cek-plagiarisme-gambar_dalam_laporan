@@ -32,19 +32,31 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email', 
+                'max:255', 
+                'unique:'.User::class,
+                // Aturan baru: Minimal harus ada 2 karakter sebelum @
+                'regex:/^.{10,}@.*$/' 
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            // Pesan error kustom untuk aturan regex
+            'email.regex' => 'Nama pengguna email harus memiliki minimal 10 karakter.'
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 2, // Role ID untuk user biasa
+            'role_id' => 2, // Role ID untuk mahasiswa
         ]);
-
+    
         event(new Registered($user));
-
+    
         return redirect()->route('login')
             ->with('status', 'Registrasi berhasil! Silakan login dengan akun Anda.');
     }

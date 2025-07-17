@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
             Auth::guard('web')->setRememberDuration(7 * 24 * 60); // 7 hari
         }
 
-        return redirect()->route('halaman-utama');
+        return redirect()->route('mahasiswa.cek-plagiarisme');
     }
 
     /**

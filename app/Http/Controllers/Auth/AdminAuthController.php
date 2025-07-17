@@ -33,7 +33,7 @@ class AdminAuthController extends Controller
             Auth::guard('web')->setRememberDuration(7 * 24 * 60); // 7 hari
         }
 
-        return redirect()->route('admin-halaman-utama');
+        return redirect()->route('admin.admin-halaman-utama');
     }
 
     public function logout(Request $request)

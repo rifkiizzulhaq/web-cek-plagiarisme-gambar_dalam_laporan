@@ -38,22 +38,19 @@
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <div class="relative">
-                <x-text-input id="email" 
-                    class="block mt-1 w-full pl-3 pr-10" 
-                    type="email" 
-                    name="email" 
-                    :value="old('email')" 
-                    required 
-                    autocomplete="username"
-                    placeholder="name@example.com" />
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                    </svg>
+            <x-input-label for="email_username" :value="__('Email')" />
+            
+            {{-- Grup Input --}}
+            <div class="flex rounded-lg shadow-sm mt-1">
+                <input type="text" id="email_username" class="py-3 px-3 block w-full border-gray-300 shadow-sm rounded-s-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400" placeholder="Name Email" required autofocus>
+                
+                <div class="px-4 inline-flex items-center min-w-fit rounded-e-md border border-s-0 border-gray-200 bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600">
+                    <span class="text-sm text-gray-500 dark:text-neutral-400">@gmail.com</span>
                 </div>
             </div>
+            
+            <input type="hidden" name="email" id="full_email" value="{{ old('email') }}">
+
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -131,5 +128,30 @@
                 `;
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const emailUsernameInput = document.getElementById('email_username');
+            const fullEmailInput = document.getElementById('full_email');
+
+            function updateFullEmail() {
+                if (emailUsernameInput && fullEmailInput) {
+                    let username = emailUsernameInput.value;
+
+                    // Cek apakah pengguna sudah mengetik '@gmail.com'
+                    if (username.includes('@gmail.com')) {
+                        // Jika ya, gunakan input pengguna apa adanya
+                        fullEmailInput.value = username;
+                    } else {
+                        // Jika tidak, tambahkan '@gmail.com'
+                        fullEmailInput.value = username + '@gmail.com';
+                    }
+                }
+            }
+
+            if(emailUsernameInput) {
+                emailUsernameInput.addEventListener('input', updateFullEmail);
+                updateFullEmail(); 
+            }
+        });
     </script>
 </x-guest-layout>

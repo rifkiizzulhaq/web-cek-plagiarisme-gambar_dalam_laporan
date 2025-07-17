@@ -28,14 +28,23 @@
     <div class="h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       <nav class="hs-accordion-group p-3 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
         <ul class="flex flex-col space-y-1">
+        @if(Auth::user()->role->name === 'admin')
           <li>
-            <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="#">
+            <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="{{ route('admin.admin-halaman-utama') }}">
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               Dashboard
             </a>
           </li>
+          <li>
+              <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg {{ Request::is('admin/mahasiswa*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('admin.mahasiswa.index') }}">
+                  <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  Kelola Mahasiswa
+              </a>
+          </li>
+        @endif
 
-          <li class="hs-accordion {{ Request::is('cek-plagiarisme*') ? 'active' : '' }}" id="projects-accordion">
+          @if(Auth::user()->role->name === 'mahasiswa')
+          <li class="hs-accordion {{ Request::is('mahasiswa/cek-plagiarisme*') ? 'active' : '' }}" id="projects-accordion">
             <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg dark:bg-neutral-700 focus:outline-none focus:bg-gray-100 dark:hover:bg-neutral-700 dark:text-neutral-200" data-hs-accordion-active-classes="bg-gray-100 dark:bg-neutral-700">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -50,23 +59,19 @@
                 <svg class="hs-accordion-active:hidden ms-auto block size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
 
-            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 {{ Request::is('cek-plagiarisme*') ? '' : 'hidden' }}">
+            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 {{ Request::is('mahasiswa/cek-plagiarisme*') ? '' : 'hidden' }}">
                 <ul class="ps-8 pt-1 space-y-1">
+                    @if(Auth::user()->role->name === 'mahasiswa')
                     <li>
-                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg {{ Request::is('cek-plagiarisme*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('cek-plagiarisme') }}">
+                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg {{ Request::is('mahasiswa/cek-plagiarisme*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('mahasiswa.cek-plagiarisme') }}">
                             Cek Plagiarisme
-                        </a>
-                    </li>
-                    @if(Auth::user()->role->name === 'admin')
-                    <li>
-                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100" href="#">
-                        Menu Khusus Admin
                         </a>
                     </li>
                     @endif
                 </ul>
             </div>
           </li>
+          @endif
         </ul>
       </nav>
     </div>
@@ -101,12 +106,14 @@
       </button>
 
       <div class="hs-dropdown-menu w-full transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg p-2 dark:bg-neutral-800 dark:border dark:border-neutral-700 dark:divide-neutral-700" role="menu" aria-labelledby="hs-dropdown-account">
+        @if(Auth::user()->role->name === 'mahasiswa')
         <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300" href="{{ route('profile.edit') }}">
           <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
           </svg>
           Profile
         </a>
+        @endif
 
         <form method="POST" action="{{ Auth::user()->role->name === 'admin' ? route('admin.logout') : route('logout') }}">
           @csrf

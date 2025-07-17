@@ -22,11 +22,11 @@ class DatabaseManager:
             )
             self.cursor = self.connection.cursor(dictionary=True)
             logging.info("Database connection established successfully")
-            
+
             self.image_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'extract_data_py', 'images')
-            
+
             self.image_model = ImageSimilarityModel()
-            
+
         except mysql.connector.Error as err:
             logging.error(f"Error connecting to database: {err}")
             raise
@@ -43,7 +43,7 @@ class DatabaseManager:
         self.cursor.execute("INSERT INTO document_hashes (doc_hash) VALUES (%s)", (document_hash,))
         self.connection.commit()
         return True, self.cursor.lastrowid
-        
+
     def get_document_metadata(self, doc_id):
         self.cursor.execute("SELECT d.title, d.author, dh.created_at FROM document_hashes dh LEFT JOIN documents d ON dh.id = d.doc_id WHERE dh.id = %s", (doc_id,))
         result = self.cursor.fetchone()
@@ -70,7 +70,7 @@ class DatabaseManager:
             for table_data in tables:
                 self.cursor.execute("INSERT INTO document_tables (document_id, table_index, content) VALUES (%s, %s, %s)",
                                     (main_document_id, table_data['table_index'], json.dumps(table_data['content'])))
-            
+
             for image_data in images:
                 self.cursor.execute("INSERT INTO document_images (document_id, path, original_name, timestamp) VALUES (%s, %s, %s, %s)",
                                     (main_document_id, image_data['path'], image_data['name'], image_data['timestamp']))
@@ -81,14 +81,14 @@ class DatabaseManager:
                     if sentence.strip():
                         hash_value = self._hash_text(self._normalize_text(sentence))
                         self.cursor.execute("INSERT IGNORE INTO sentence_hashes (hash_value, text) VALUES (%s, %s)", (hash_value, sentence.strip()))
-                        
+
                         hash_id = self.cursor.lastrowid
                         if hash_id == 0:
                             self.cursor.execute("SELECT id FROM sentence_hashes WHERE hash_value = %s", (hash_value,))
                             result = self.cursor.fetchone()
                             if result:
                                 hash_id = result['id']
-                        
+
                         if hash_id:
                             self.cursor.execute("INSERT IGNORE INTO hash_locations (hash_id, doc_id, page_number) VALUES (%s, %s, %s)", (hash_id, doc_id, page['page']))
 
@@ -100,7 +100,7 @@ class DatabaseManager:
                     if embedding is not None:
                         embedding_bytes = embedding.tobytes()
                         self.cursor.execute("INSERT INTO image_embeddings (doc_id, image_name, embedding) VALUES (%s, %s, %s)", (doc_id, image_name, embedding_bytes))
-            
+
             self.connection.commit()
             logging.info(f"Document {doc_id} stored successfully.")
         except mysql.connector.Error as err:
@@ -112,10 +112,10 @@ class DatabaseManager:
         try:
             self.cursor.execute("SELECT image_name, embedding FROM image_embeddings WHERE doc_id = %s", (doc_id,))
             source_images = self.cursor.fetchall()
-            
+
             self.cursor.execute("SELECT COUNT(id) FROM document_hashes")
             doc_count = self.cursor.fetchone()['COUNT(id)']
-            
+
             query = """
                 SELECT ie.doc_id, d.title as doc_title, ie.image_name, ie.embedding
                 FROM image_embeddings ie
@@ -141,7 +141,7 @@ class DatabaseManager:
 
             for index, source_img in enumerate(source_images):
                 source_embedding = np.frombuffer(source_img['embedding'], dtype=np.float32)
-                
+
                 best_match_for_this_source_image = None
                 max_similarity_for_this_source_image = -1.0
 
@@ -150,19 +150,19 @@ class DatabaseManager:
                     norm_source = np.linalg.norm(source_embedding)
                     norm_candidate = np.linalg.norm(candidate_img['embedding_np'])
                     similarity = (dot_product / (norm_source * norm_candidate)) if norm_source > 0 and norm_candidate > 0 else 0
-                    
+
                     if similarity > max_similarity_for_this_source_image:
                         max_similarity_for_this_source_image = similarity
                         best_match_for_this_source_image = candidate_img
-                
+
                 if best_match_for_this_source_image and max_similarity_for_this_source_image >= similarity_threshold:
-                    
+
                     match_title = best_match_for_this_source_image['doc_title']
-                    if not match_title: 
+                    if not match_title:
                         match_title = f"Dokumen Tanpa Judul (ID: {best_match_for_this_source_image['doc_id']})"
 
                     is_only_match_with_self = all(c['doc_id'] == doc_id for c in candidate_images)
-                    
+
                     if source_img['image_name'] == best_match_for_this_source_image['image_name'] and not is_only_match_with_self:
                         continue
 
@@ -171,10 +171,10 @@ class DatabaseManager:
                         'source_image_index': index,
                         'source_image': source_img['image_name'],
                         'match_image': best_match_for_this_source_image['image_name'],
-                        'match_doc_title': match_title, 
+                        'match_doc_title': match_title,
                         'similarity': float(max_similarity_for_this_source_image)
                     })
-            
+
             logging.info(f"Image plagiarism check finished. Found {len(similar_images_report)} similar images to report.")
             return similar_images_report
 
@@ -212,24 +212,24 @@ class DatabaseManager:
                 GROUP BY cds.sentence_id, cds.sentence_text, cds.page_number
                 ORDER BY cds.page_number, cds.sentence_id
             """
-            
+
             where_clause = ""
             params = (doc_id,)
 
             if doc_count > 1:
                 where_clause = "WHERE hl2.doc_id != %s"
                 params = (doc_id, doc_id)
-            
+
             final_query = base_query.format(where_clause=where_clause)
-            
+
             self.cursor.execute(final_query, params)
-            
+
             results = self.cursor.fetchall()
-            
+
             total_sentences = len(results)
-            plagiarized_sentences = [] 
+            plagiarized_sentences = []
             all_sentences = []
-            
+
             for row in results:
                 other_locations = []
                 matching_docs_str = row.get('matching_docs')
@@ -240,17 +240,17 @@ class DatabaseManager:
                             if len(parts) >= 3:
                                 doc_id_str, title, page = parts[0], parts[1], parts[2]
                                 other_locations.append({'doc_id': int(doc_id_str), 'title': title, 'page': int(page)})
-                
+
                 is_plagiarized = len(other_locations) > 0
                 if is_plagiarized:
                     plagiarized_sentences.append({'text': row['text'], 'matches': other_locations})
-                
+
                 all_sentences.append({'text': row['text'], 'plagiarized': is_plagiarized, 'other_locations': other_locations, 'page': row['page_number']})
 
             plagiarism_percentage = round((len(plagiarized_sentences) / total_sentences * 100), 2) if total_sentences > 0 else 0
-            
+
             return total_sentences, plagiarized_sentences, plagiarism_percentage
-            
+
         except mysql.connector.Error as err:
             logging.error(f"Error calculating plagiarism: {err}")
             raise

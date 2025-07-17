@@ -7,6 +7,7 @@
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="<?php echo e(asset('Image/logo_polindra.png')); ?>">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
         <title>
             <?php if(Request::routeIs('login')): ?>
@@ -50,6 +51,7 @@
                 </div>
             </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </body>
 </html>
 <?php /**PATH C:\Users\Rifki Izzulhaq\Documents\Skripsi\Project\Web\laravel\example-app\resources\views/layouts/guest.blade.php ENDPATH**/ ?>

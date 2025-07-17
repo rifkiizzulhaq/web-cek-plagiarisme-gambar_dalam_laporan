@@ -1,7 +1,7 @@
 
 
 <?php $__env->startSection('content'); ?>
-    <h1>Admin Halaman Utama</h1>
+    <h1>Admin Dashboard</h1>
 <?php $__env->stopSection(); ?>
 
 

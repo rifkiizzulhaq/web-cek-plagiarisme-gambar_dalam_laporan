@@ -24,6 +24,10 @@ class User extends Authenticatable
         'role_id',
         'google_id',
         'avatar',
+        'nim',
+        'prodi',
+        'angkatan',
+        'kelas',
     ];
 
     /**
@@ -49,6 +53,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+    
+    public function files()
+    {
+        return $this->hasMany(File::class);
     }
     /**
      * --- TAMBAHKAN METODE BARU INI ---

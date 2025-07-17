@@ -102,6 +102,16 @@
     </form>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('status'))
+                Swal.fire({
+                    title: 'Registrasi Berhasil!',
+                    text: '{{ session('status') }}',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+        });
         function togglePassword() {
             const password = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');

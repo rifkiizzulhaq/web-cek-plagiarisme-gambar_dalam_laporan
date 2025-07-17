@@ -11,35 +11,59 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+    protected $prodiOptions = [
+        'D3 - Teknik Informatika',
+        'D3 - Teknik Pendingin dan Tata Udara',
+        'D4 - Rekayasa Perangkat Lunak',
+    ];
+
+    protected $prodiAbbreviations = [
+        'D3 - Teknik Informatika' => 'D3-TI',
+        'D3 - Teknik Pendingin dan Tata Udara' => 'D3-TPTU',
+        'D4 - Rekayasa Perangkat Lunak' => 'D4-RPL',
+    ];
+
     public function edit(Request $request): View
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'prodiOptions' => $this->prodiOptions,
+            'prodiAbbreviations' => $this->prodiAbbreviations,
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $validatedData = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $updateData = [
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+        ];
+
+        if ($user->hasRole('mahasiswa')) {
+            $prodiPrefix = $this->prodiAbbreviations[$validatedData['prodi']] ?? 'PRODI';
+            $kelasDetailUpper = strtoupper($validatedData['kelas_detail']);
+            $kelasString = "{$prodiPrefix}-{$kelasDetailUpper}";
+            
+            $updateData['nim'] = $validatedData['nim'];
+            $updateData['prodi'] = $validatedData['prodi'];
+            $updateData['angkatan'] = $validatedData['angkatan'];
+            $updateData['kelas'] = $kelasString;
         }
 
-        $request->user()->save();
+        $user->fill($updateData);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -47,11 +71,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-
         Auth::logout();
-
         $user->delete();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

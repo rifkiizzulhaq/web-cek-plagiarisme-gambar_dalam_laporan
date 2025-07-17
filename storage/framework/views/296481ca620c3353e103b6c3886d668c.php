@@ -11,6 +11,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
         <!-- Scripts -->
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     </head>
@@ -26,6 +28,31 @@
             </div>
         </div>
         <?php echo $__env->yieldPushContent('scripts'); ?>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        
+        <script>
+            <?php if(session('success')): ?>
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: '<?php echo e(session('success')); ?>',
+                    icon: 'success',
+                    timer: 3000, // Notifikasi akan hilang setelah 3 detik
+                    showConfirmButton: false
+                });
+            <?php endif; ?>
+
+            // Notifikasi khusus untuk update profil
+            <?php if(session('status') === 'profile-updated'): ?>
+                Swal.fire({
+                    title: 'Tersimpan!',
+                    text: 'Informasi profil Anda berhasil diperbarui.',
+                    icon: 'success',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            <?php endif; ?>
+        </script>
     </body>
 </html>
 <?php /**PATH C:\Users\Rifki Izzulhaq\Documents\Skripsi\Project\Web\laravel\example-app\resources\views/layouts/main.blade.php ENDPATH**/ ?>

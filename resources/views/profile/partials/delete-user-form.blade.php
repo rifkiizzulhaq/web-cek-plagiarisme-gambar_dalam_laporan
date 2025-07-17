@@ -15,7 +15,7 @@
     >{{ __('Delete Account') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+        <form id="delete-account-form" method="post" action="{{ route('profile.destroy') }}" class="p-6">
             @csrf
             @method('delete')
 
@@ -53,3 +53,30 @@
         </form>
     </x-modal>
 </section>
+
+@push('scripts')
+<script>
+const deleteForm = document.getElementById('delete-account-form');
+
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Hentikan pengiriman form asli
+
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: "Setelah dihapus, semua data Anda akan hilang selamanya!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus Akun Saya',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteForm.submit(); // Jika dikonfirmasi, kirim form
+                }
+            });
+        });
+    }
+</script>
+@endpush
