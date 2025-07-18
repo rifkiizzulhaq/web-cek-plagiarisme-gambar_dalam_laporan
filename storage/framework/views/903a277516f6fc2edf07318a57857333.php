@@ -186,7 +186,7 @@ const deleteForm = document.getElementById('delete-account-form');
 
     if (deleteForm) {
         deleteForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Hentikan pengiriman form asli
+            event.preventDefault();
 
             Swal.fire({
                 title: 'Apakah Anda Yakin?',
@@ -199,7 +199,7 @@ const deleteForm = document.getElementById('delete-account-form');
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    deleteForm.submit(); // Jika dikonfirmasi, kirim form
+                    deleteForm.submit();
                 }
             });
         });

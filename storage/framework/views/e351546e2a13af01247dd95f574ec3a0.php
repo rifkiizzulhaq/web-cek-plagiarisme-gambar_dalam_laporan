@@ -65,7 +65,6 @@
                     </div>
                 </form>
 
-                
                 <div class="mt-4 space-y-4">
                     <?php if(session('success')): ?>
                     <div class="p-4 border border-green-200 rounded-lg bg-green-50 dark:bg-green-800/10 dark:border-green-900/10">
@@ -99,59 +98,6 @@
                     </div>
                     <?php endif; ?>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    
-    <div class="mt-10">
-        <div class="bg-white shadow-sm rounded-xl dark:bg-neutral-800">
-            <div class="p-4 sm:p-7">
-                <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                    Riwayat Unggahan
-                </h2>
-
-                <?php if($files->isNotEmpty()): ?>
-                    
-                    <div class="space-y-4 max-h-32 overflow-y-auto pr-2">
-                        <?php $__currentLoopData = $files; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="flex justify-between items-center p-4 border rounded-lg dark:border-neutral-700">
-                                <div class="flex items-center">
-                                    
-                                    <p class="text-lg font-semibold text-gray-500 dark:text-gray-400 mr-4"><?php echo e($files->firstItem() + $loop->index); ?>.</p>
-
-                                    <div>
-                                        <p class="font-semibold text-gray-800 dark:text-white"><?php echo e($file->name); ?></p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            
-                                            Diupload pada: <?php echo e($file->created_at->format('d M Y')); ?>
-
-                                        </p>
-                                        <?php if(optional(auth()->user())->hasRole('admin')): ?>
-                                            <p class="text-xs text-blue-500">
-                                                Oleh: <?php echo e($file->user->name); ?>
-
-                                            </p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <div>
-                                    <a href="<?php echo e(route('mahasiswa.view.document', $file->id)); ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                        Lihat Hasil
-                                    </a>
-                                </div>
-                            </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </div>
-
-                    
-                    <div class="mt-6">
-                        <?php echo e($files->links()); ?>
-
-                    </div>
-                <?php else: ?>
-                    <p class="text-center text-gray-500 dark:text-gray-400">Anda belum pernah mengunggah dokumen.</p>
-                <?php endif; ?>
             </div>
         </div>
     </div>

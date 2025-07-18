@@ -49,6 +49,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         // Route::get('/halaman-utama', [UserController::class, 'Index'])->name('halaman-utama');
 
         Route::get('/cek-plagiarisme', [UserController::class, 'CekPlagiarisme'])->name('cek-plagiarisme');
+        Route::get('/riwayat', [UserController::class, 'riwayatUnggahan'])->name('riwayat');
         
         // Route upload file docx
         Route::post('/cek-plagiarisme/upload', [UserController::class, 'upload'])->name('upload.file');
@@ -59,7 +60,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 
     // Route untuk admin
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/admin-halaman-utama', [AdminController::class, 'Index'])->name('admin-halaman-utama');
+            // Route::get('/admin-halaman-utama', [AdminController::class, 'Index'])->name('admin-halaman-utama');
     
             // Rute untuk CRUD Mahasiswa
             Route::get('/mahasiswa', [AdminController::class, 'indexMahasiswa'])->name('mahasiswa.index');

@@ -30,10 +30,10 @@
         <ul class="flex flex-col space-y-1">
         @if(Auth::user()->role->name === 'admin')
           <li>
-            <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="{{ route('admin.admin-halaman-utama') }}">
+            <!-- <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="#">
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               Dashboard
-            </a>
+            </a> -->
           </li>
           <li>
               <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg {{ Request::is('admin/mahasiswa*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('admin.mahasiswa.index') }}">
@@ -42,9 +42,11 @@
               </a>
           </li>
         @endif
-
-          @if(Auth::user()->role->name === 'mahasiswa')
-          <li class="hs-accordion {{ Request::is('mahasiswa/cek-plagiarisme*') ? 'active' : '' }}" id="projects-accordion">
+        @php
+            $isDokumenMenuActive = Request::is('mahasiswa/cek-plagiarisme*') || Request::is('mahasiswa/riwayat*');
+        @endphp
+        @if(Auth::user()->role->name === 'mahasiswa')
+          <li class="hs-accordion {{ $isDokumenMenuActive ? 'active' : '' }}" id="projects-accordion">
             <button type="button" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg dark:bg-neutral-700 focus:outline-none focus:bg-gray-100 dark:hover:bg-neutral-700 dark:text-neutral-200" data-hs-accordion-active-classes="bg-gray-100 dark:bg-neutral-700">
                 <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -59,19 +61,22 @@
                 <svg class="hs-accordion-active:hidden ms-auto block size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
 
-            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 {{ Request::is('mahasiswa/cek-plagiarisme*') ? '' : 'hidden' }}">
-                <ul class="ps-8 pt-1 space-y-1">
-                    @if(Auth::user()->role->name === 'mahasiswa')
-                    <li>
-                        <a class="flex items-center gap-x-2 py-2 px-2.5 text-sm text-gray-800 rounded-lg {{ Request::is('mahasiswa/cek-plagiarisme*') ? 'bg-gray-200 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('mahasiswa.cek-plagiarisme') }}">
-                            Cek Plagiarisme
-                        </a>
-                    </li>
-                    @endif
-                </ul>
+            <div id="projects-accordion-child" class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 {{ $isDokumenMenuActive ? '' : 'hidden' }}">
+              <ul class="pt-2 ps-2">
+                  <li>
+                      <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg {{ Request::is('mahasiswa/cek-plagiarisme*') ? 'bg-gray-100 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('mahasiswa.cek-plagiarisme') }}">
+                          Cek Plagiarisme
+                      </a>
+                  </li>
+                  <li class="pt-1">
+                      <a class="flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg {{ Request::is('mahasiswa/riwayat*') ? 'bg-gray-100 dark:bg-neutral-700' : 'hover:bg-gray-100' }}" href="{{ route('mahasiswa.riwayat') }}">
+                          Riwayat Unggahan
+                      </a>
+                  </li>
+              </ul>
             </div>
           </li>
-          @endif
+        @endif
         </ul>
       </nav>
     </div>

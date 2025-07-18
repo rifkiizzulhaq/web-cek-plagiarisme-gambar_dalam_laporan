@@ -66,7 +66,7 @@
                                class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700" 
                                value="{{ $mahasiswa->email }}" 
                                readonly>
-                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena terhubung dengan akun Google.</p>
+                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena akun mahasiswa terhubung dengan akun Google.</p>
                     @else
                         @php
                             $emailParts = explode('@gmail.com', old('email', $mahasiswa->email));
@@ -88,16 +88,18 @@
                 </div>
                 
                 {{-- Password & Konfirmasi --}}
-                <div>
-                    <label for="password" class="block text-sm font-medium mb-2 dark:text-white">Password Baru (Opsional)</label>
-                    <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
-                    @error('password') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium mb-2 dark:text-white">Konfirmasi Password Baru</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                </div>
+                @if(!$mahasiswa->google_id)
+                    <div>
+                        <label for="password" class="block text-sm font-medium mb-2 dark:text-white">Password Baru (Opsional)</label>
+                        <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
+                        @error('password') <p class="text-xs text-red-600 mt-2">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium mb-2 dark:text-white">Konfirmasi Password Baru</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
+                    </div>
+                @endif
             </div>
 
             <div class="mt-8 flex justify-end gap-x-2">

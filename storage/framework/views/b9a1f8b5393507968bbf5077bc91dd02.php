@@ -101,7 +101,7 @@ unset($__errorArgs, $__bag); ?>
                                class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700" 
                                value="<?php echo e($mahasiswa->email); ?>" 
                                readonly>
-                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena terhubung dengan akun Google.</p>
+                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena akun mahasiswa terhubung dengan akun Google.</p>
                     <?php else: ?>
                         <?php
                             $emailParts = explode('@gmail.com', old('email', $mahasiswa->email));
@@ -130,11 +130,12 @@ unset($__errorArgs, $__bag); ?>
                 </div>
                 
                 
-                <div>
-                    <label for="password" class="block text-sm font-medium mb-2 dark:text-white">Password Baru (Opsional)</label>
-                    <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
-                    <?php $__errorArgs = ['password'];
+                <?php if(!$mahasiswa->google_id): ?>
+                    <div>
+                        <label for="password" class="block text-sm font-medium mb-2 dark:text-white">Password Baru (Opsional)</label>
+                        <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
+                        <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -142,11 +143,12 @@ $message = $__bag->first($__errorArgs[0]); ?> <p class="text-xs text-red-600 mt-
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                </div>
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium mb-2 dark:text-white">Konfirmasi Password Baru</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                </div>
+                    </div>
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium mb-2 dark:text-white">Konfirmasi Password Baru</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
+                    </div>
+                <?php endif; ?>
             </div>
 
             <div class="mt-8 flex justify-end gap-x-2">

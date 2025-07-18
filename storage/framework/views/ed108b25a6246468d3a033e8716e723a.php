@@ -1,7 +1,6 @@
 <?php $__env->startSection('content'); ?>
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl overflow-hidden">
-    
         <div class="px-6 py-4 border-b border-gray-200 dark:border-neutral-700 flex justify-between items-center">
             <div>
                 <div class="mb-4">

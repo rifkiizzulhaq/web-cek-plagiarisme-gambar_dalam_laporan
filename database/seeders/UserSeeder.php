@@ -20,11 +20,11 @@ class UserSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'role_id' => 1,
         ]);
-        User::create([
-            'name' => 'rifki',
-            'email' => 'rifki@gmail.com',
-            'password' => Hash::make('12345678'),
-            'role_id' => 2,
-        ]);
+        // User::create([
+        //     'name' => 'rifki',
+        //     'email' => 'rifki@gmail.com',
+        //     'password' => Hash::make('12345678'),
+        //     'role_id' => 2,
+        // ]);
     }
 }

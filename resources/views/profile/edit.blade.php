@@ -114,9 +114,11 @@
         </div>
 
         {{-- Form untuk Update Password --}}
-        <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">
-            @include('profile.partials.update-password-form')
-        </div>
+        @if(!Auth::user()->google_id)
+            <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">
+                @include('profile.partials.update-password-form')
+            </div>
+        @endif
 
         {{-- Form untuk Hapus Akun --}}
         <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">

@@ -8,12 +8,12 @@ use App\Models\Role;
 use App\Rules\NameFormatRule;
 use App\Rules\EmailUsernameFormatRule;
 use App\Rules\KelasDetailFormatRule;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MahasiswaExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -43,12 +43,11 @@ class AdminController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('email', 'like', '%' . $search . '%')
-                  ->orWhere('nim', 'like', '%' . $search . '%');
+                  ->orWhere('email', 'like', '%' . $search . '%');
             });
         }
 
-        $mahasiswas = $query->latest()->paginate(10)->withQueryString();
+        $mahasiswas = $query->latest()->paginate(8)->withQueryString();
         return view('Admin.mahasiswa.index', compact('mahasiswas'));
     }
 
@@ -89,9 +88,16 @@ class AdminController extends Controller
         return redirect()->route('admin.mahasiswa.index')->with('success', 'Akun mahasiswa berhasil ditambahkan.');
     }
 
-    public function showMahasiswa(User $mahasiswa)
+    public function showMahasiswa(User $mahasiswa, Request $request)
     {
-        $files = $mahasiswa->files()->orderBy('created_at', 'desc')->paginate(10);
+        $query = $mahasiswa->files();
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $files = $query->orderBy('created_at', 'asc')->paginate(5)->withQueryString();
+        
         return view('Admin.mahasiswa.show', compact('mahasiswa', 'files'));
     }
 

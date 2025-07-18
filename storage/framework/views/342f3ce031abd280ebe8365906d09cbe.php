@@ -50,15 +50,12 @@ unset($__errorArgs, $__bag); ?>
                     <label for="email" class="block text-sm font-medium mb-2 dark:text-white">Email</label>
                     
                     <?php if(Auth::user()->google_id): ?>
-                        
                         <input id="email" name="email" type="email" 
                             class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700" 
                             value="<?php echo e($user->email); ?>" 
                             readonly>
-                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena terhubung dengan akun Google.</p>
-                    
+                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena terhubung dengan akun Google.</p>  
                     <?php else: ?>
-                        
                         <?php
                             $emailParts = explode('@', old('email', $user->email));
                             $emailUsername = $emailParts[0];
@@ -108,7 +105,6 @@ unset($__errorArgs, $__bag); ?>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label for="angkatan" class="block text-sm font-medium mb-2 dark:text-white">Tahun Angkatan</label>
-                            
                             <input id="angkatan" name="angkatan" type="number" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm" value="<?php echo e(old('angkatan', $user->angkatan)); ?>" placeholder="Contoh: 2021" required>
                             <?php $__errorArgs = ['angkatan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -144,17 +140,6 @@ unset($__errorArgs, $__bag); ?>
                 <?php endif; ?>
 
                 <div class="mt-6 flex justify-between items-center">
-                    
-                    <!-- <div>
-                        <?php if(session('status') === 'profile-updated'): ?>
-                            <p class="text-sm text-green-600 dark:text-green-400"
-                            x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)">
-                                Tersimpan.
-                            </p>
-                        <?php endif; ?>
-                    </div> -->
-
-                    
                     <div class="flex gap-x-2">
                         <a href="<?php echo e(Auth::user()->hasRole('admin') ? route('admin.admin-halaman-utama') : route('mahasiswa.cek-plagiarisme')); ?>" 
                         class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700">
@@ -169,9 +154,11 @@ unset($__errorArgs, $__bag); ?>
         </div>
 
         
-        <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">
-            <?php echo $__env->make('profile.partials.update-password-form', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-        </div>
+        <?php if(!Auth::user()->google_id): ?>
+            <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">
+                <?php echo $__env->make('profile.partials.update-password-form', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            </div>
+        <?php endif; ?>
 
         
         <div class="bg-white dark:bg-neutral-800 shadow-sm rounded-xl p-6">
@@ -197,9 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Cek apakah ini halaman untuk mahasiswa
     <?php if(Auth::user()->hasRole('mahasiswa')): ?>
-        // --- LOGIKA UNTUK PRODI & KELAS ---
         const prodiSelect = document.getElementById('prodi');
         const prodiPrefixSpan = document.getElementById('prodi-prefix');
         const prodiAbbreviations = <?php echo json_encode($prodiAbbreviations ?? [], 15, 512) ?>;
@@ -214,11 +199,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (prodiSelect) {
             prodiSelect.addEventListener('change', updatePrefix);
-            // Panggil sekali saat halaman dimuat untuk menampilkan prefix awal
             updatePrefix();
         }
 
-        // --- LOGIKA UNTUK EMAIL (KHUSUS NON-GOOGLE) ---
         const emailUsernameInput = document.getElementById('email_username');
         const fullEmailInput = document.getElementById('full_email');
         
@@ -235,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if(emailUsernameInput) {
             emailUsernameInput.addEventListener('input', updateFullEmail);
-            // Panggil sekali saat halaman dimuat untuk memastikan nilai awal benar
             updateFullEmail(); 
         }
     <?php endif; ?>

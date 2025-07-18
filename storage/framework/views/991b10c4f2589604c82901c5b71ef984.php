@@ -6,9 +6,11 @@
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Kelola Akun Mahasiswa</h1>
         
         <div class="flex gap-x-2">
-            <a href="<?php echo e(route('admin.mahasiswa.export')); ?>" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700">
-                Export Excel
-            </a>
+            <?php if($mahasiswas->isNotEmpty()): ?>
+                <a href="<?php echo e(route('admin.mahasiswa.export')); ?>" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700">
+                    Export Excel
+                </a>
+            <?php endif; ?>
             <a href="<?php echo e(route('admin.mahasiswa.create')); ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
                 Tambah Mahasiswa
             </a>
@@ -72,7 +74,17 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-800 dark:text-neutral-200"><?php echo e($mahasiswas->firstItem() + $loop->index); ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"><?php echo e($mahasiswa->name); ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200"><?php echo e($mahasiswa->email); ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                        <div>
+                                            <?php echo e($mahasiswa->email); ?>
+
+                                            <?php if($mahasiswa->google_id): ?>
+                                                <span class="block bg-gray-300 w-14 px-2 text-xs rounded-full text-left text-blue-600 dark:text-blue-500">
+                                                    Google
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                         <div class="row-actions invisible opacity-0 transition-opacity duration-300">
                                             <div class="flex justify-end gap-x-2">
@@ -208,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-    
     
     deleteForms.forEach(form => {
         form.addEventListener('submit', function (event) {

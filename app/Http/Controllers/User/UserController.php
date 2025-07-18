@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\File;
 use App\Models\ImagePlagiarismReport;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -31,7 +31,20 @@ class UserController extends Controller
         $query = File::where('user_id', $user->id);
         $files = $query->orderBy('created_at', 'asc')->paginate(10);
         
-        return view('CekPlagiarisme', compact('files', 'user'));
+        return view('User.cekPlagiarisme.index', compact('files', 'user'));
+    }
+
+    public function riwayatUnggahan(Request $request)
+    {
+        $query = File::where('user_id', auth()->id());
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $files = $query->orderBy('created_at', 'asc')->paginate(5)->withQueryString();
+        
+        return view('User.riwayat.index', compact('files'));
     }
 
     public function upload(Request $request)
@@ -60,18 +73,10 @@ class UserController extends Controller
             $apiUrl = $this->apiUrl;
 
             $result = DB::transaction(function () use ($path, $fileName, $file, $apiUrl) {
-                $fileModel = File::create([
-                    'user_id' => auth()->id(),
-                    'name' => $file->getClientOriginalName(),
-                    'path' => $path,
-                    'extension' => $file->getClientOriginalExtension(),
-                    'size' => $file->getSize(),
-                    'status' => 'processing'
-                ]);
-
-                $response = Http::attach(
-                    'file', file_get_contents(Storage::disk('public')->path($path)), $fileName
-                )->post($apiUrl . '/api/check-plagiarism');
+                
+                $response = Http::timeout(600)
+                    ->attach('file', file_get_contents(Storage::disk('public')->path($path)), $fileName)
+                    ->post($apiUrl . '/api/check-plagiarism');
 
                 $responseData = $response->json();
 
@@ -81,8 +86,17 @@ class UserController extends Controller
                 if (!isset($responseData['data'])) {
                     throw new \Exception('Respons tidak valid dari server pemrosesan.');
                 }
-
+                
                 $resultData = $responseData['data'];
+
+                $fileModel = File::create([
+                    'user_id' => auth()->id(),
+                    'name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'extension' => $file->getClientOriginalExtension(),
+                    'size' => $file->getSize(),
+                    'status' => 'processing'
+                ]);
 
                 $fileModel->update([
                     'status' => 'completed',
@@ -133,10 +147,10 @@ class UserController extends Controller
         }
 
         if ($file->status !== 'completed') {
-            return view('ViewDocument', ['file' => $file, 'error' => 'Dokumen masih dalam proses.']);
+            return view('user.previewDocument.index', ['file' => $file, 'error' => 'Dokumen masih dalam proses.']);
         }
 
-        return view('ViewDocument', [
+        return view('user.previewDocument.index', [
             'file' => $file,
             'image_plagiarism_report' => $file->imagePlagiarismReports
         ]);

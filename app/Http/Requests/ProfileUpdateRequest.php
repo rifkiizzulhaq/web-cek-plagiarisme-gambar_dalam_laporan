@@ -33,7 +33,7 @@ class ProfileUpdateRequest extends FormRequest
             $rules['nim'] = ['required', 'numeric', 'digits_between:7,8', Rule::unique(User::class)->ignore($this->user()->id)];
             $rules['prodi'] = ['required', 'string', Rule::in($prodiOptions)];
             $rules['angkatan'] = ['required', 'numeric', 'digits:4', 'min:2020'];
-            $rules['kelas_detail'] = ['required', 'string', new KelasDetailFormatRule($this->user()->prodi)];
+            $rules['kelas_detail'] = ['required', 'string', new KelasDetailFormatRule($this->input('prodi'))];
         }
 
         return $rules;
