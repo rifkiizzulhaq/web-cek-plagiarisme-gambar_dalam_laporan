@@ -39,7 +39,7 @@ unset($__errorArgs, $__bag); ?>
                 
                 <div>
                     <label for="prodi" class="block text-sm font-medium mb-2 dark:text-white">Program Studi</label>
-                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm" required>
+                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="" disabled selected>Pilih Program Studi</option>
                         <?php $__currentLoopData = $prodiOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prodi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <option value="<?php echo e($prodi); ?>" <?php echo e(old('prodi') == $prodi ? 'selected' : ''); ?>><?php echo e($prodi); ?></option>

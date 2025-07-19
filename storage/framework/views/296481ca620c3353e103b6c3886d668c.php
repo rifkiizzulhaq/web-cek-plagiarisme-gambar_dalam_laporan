@@ -17,32 +17,29 @@
         <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     </head>
     <body class="bg-white dark:bg-slate-900">
-        <div class="flex">
-            <?php echo $__env->make('layouts.sidebar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-            
-            <!-- Content -->
-            <div class="w-full lg:pl-64">
-                <main class="px-4 py-2 sm:p-6 lg:p-8">
-                    <?php echo $__env->yieldContent('content'); ?>
-                </main>
-            </div>
+        <?php echo $__env->make('layouts.sidebar', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+        
+        <div class="w-full lg:ps-64">
+            <?php echo $__env->make('layouts.navigation', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?> 
+
+            <main class="p-4 sm:p-6 lg:p-8">
+                <?php echo $__env->yieldContent('content'); ?>
+            </main>
         </div>
         <?php echo $__env->yieldPushContent('scripts'); ?>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        
         <script>
             <?php if(session('success')): ?>
                 Swal.fire({
                     title: 'Berhasil!',
                     text: '<?php echo e(session('success')); ?>',
                     icon: 'success',
-                    timer: 3000, // Notifikasi akan hilang setelah 3 detik
+                    timer: 3000,
                     showConfirmButton: false
                 });
             <?php endif; ?>
 
-            // Notifikasi khusus untuk update profil
             <?php if(session('status') === 'profile-updated'): ?>
                 Swal.fire({
                     title: 'Tersimpan!',

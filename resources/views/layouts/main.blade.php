@@ -17,32 +17,29 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-white dark:bg-slate-900">
-        <div class="flex">
-            @include('layouts.sidebar')
-            
-            <!-- Content -->
-            <div class="w-full lg:pl-64">
-                <main class="px-4 py-2 sm:p-6 lg:p-8">
-                    @yield('content')
-                </main>
-            </div>
+        @include('layouts.sidebar')
+        
+        <div class="w-full lg:ps-64">
+            @include('layouts.navigation') 
+
+            <main class="p-4 sm:p-6 lg:p-8">
+                @yield('content')
+            </main>
         </div>
         @stack('scripts')
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        {{-- Script untuk Notifikasi Sukses --}}
         <script>
             @if(session('success'))
                 Swal.fire({
                     title: 'Berhasil!',
                     text: '{{ session('success') }}',
                     icon: 'success',
-                    timer: 3000, // Notifikasi akan hilang setelah 3 detik
+                    timer: 3000,
                     showConfirmButton: false
                 });
             @endif
 
-            // Notifikasi khusus untuk update profil
             @if(session('status') === 'profile-updated')
                 Swal.fire({
                     title: 'Tersimpan!',

@@ -13,12 +13,12 @@
         <div class="w-8 h-8 rounded flex items-center justify-center">
             <img src="<?php echo e(asset('Image/logo_polindra.png')); ?>" alt="LogoPolindra">
         </div>
-        <span class="ml-2 text-xl font-semibold">Polindra ImagePlag</span>
+        <span class="ml-2 text-xl font-semibold dark:text-white">Polindra ImagePlag</span>
     </div>
 
     <!-- Register Title -->
-    <h2 class="text-2xl font-bold mb-2">Create your account</h2>
-    <p class="text-gray-600 mb-8">Enter your details to register</p>
+    <h2 class="text-2xl font-bold mb-2 dark:text-white">Create your account</h2>
+    <p class="text-gray-600 mb-8 dark:text-white">Enter your details to register</p>
 
     <form method="POST" action="<?php echo e(route('register')); ?>">
         <?php echo csrf_field(); ?>
@@ -319,7 +319,7 @@
 <?php endif; ?>
 
         <!-- Login Link -->
-        <p class="mt-6 text-center text-sm text-gray-600">
+        <p class="mt-6 text-center text-sm text-gray-600 dark:text-white">
             Already have an account? 
             <a href="<?php echo e(route('login')); ?>" class="font-medium text-blue-600 hover:text-blue-500">
                 Login here
@@ -354,12 +354,9 @@
                 if (emailUsernameInput && fullEmailInput) {
                     let username = emailUsernameInput.value;
 
-                    // Cek apakah pengguna sudah mengetik '@gmail.com'
                     if (username.includes('@gmail.com')) {
-                        // Jika ya, gunakan input pengguna apa adanya
                         fullEmailInput.value = username;
                     } else {
-                        // Jika tidak, tambahkan '@gmail.com'
                         fullEmailInput.value = username + '@gmail.com';
                     }
                 }

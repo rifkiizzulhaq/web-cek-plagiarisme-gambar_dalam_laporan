@@ -13,12 +13,12 @@
         <div class="w-8 h-8 rounded flex items-center justify-center">
             <img src="<?php echo e(asset('Image/logo_polindra.png')); ?>" alt="LogoPolindra">
         </div>
-        <span class="ml-2 text-xl font-semibold">Polindra ImagePlag</span>
+        <span class="ml-2 text-xl font-semibold dark:text-white">Polindra ImagePlag</span>
     </div>
 
     <!-- Login Title -->
-    <h2 class="text-2xl font-bold mb-2">Login to your account</h2>
-    <p class="text-gray-600 mb-8">Enter your email below to login to your account</p>
+    <h2 class="text-2xl font-bold mb-2 dark:text-white">Login to your account</h2>
+    <p class="text-gray-600 mb-8 dark:text-white">Enter your email below to login to your account</p>
 
     <!-- Session Status -->
     <?php if (isset($component)) { $__componentOriginal7c1bf3a9346f208f66ee83b06b607fb5 = $component; } ?>
@@ -219,12 +219,12 @@
 <?php endif; ?>
 
         <!-- Divider -->
-        <div class="relative my-6">
+        <div class="relative my-6 dark:bg-gray-800">
             <div class="absolute inset-0 flex items-center">
                 <div class="w-full border-t border-gray-300"></div>
             </div>
-            <div class="relative flex justify-center text-sm">
-                <span class="px-2 bg-white text-gray-500">Or continue with</span>
+            <div class="relative flex justify-center text-sm dark:text-white">
+                <span class="px-2 bg-white text-gray-500 dark:bg-gray-800 dark:text-white">Or continue with</span>
             </div>
         </div>
 
@@ -241,7 +241,7 @@
         </a>
 
         <!-- Sign Up Link -->
-        <p class="mt-6 text-center text-sm text-gray-600">
+        <p class="mt-6 text-center text-sm text-gray-600 dark:text-white">
             Don't have an account? 
             <a href="<?php echo e(route('register')); ?>" class="font-medium text-blue-600 hover:text-blue-500">
                 Sign up

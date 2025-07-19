@@ -25,7 +25,7 @@
                 {{-- Program Studi (Dropdown) --}}
                 <div>
                     <label for="prodi" class="block text-sm font-medium mb-2 dark:text-white">Program Studi</label>
-                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm" required>
+                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="" disabled selected>Pilih Program Studi</option>
                         @foreach($prodiOptions as $prodi)
                             <option value="{{ $prodi }}" {{ old('prodi') == $prodi ? 'selected' : '' }}>{{ $prodi }}</option>

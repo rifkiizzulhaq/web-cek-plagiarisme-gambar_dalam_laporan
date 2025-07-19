@@ -39,7 +39,7 @@ unset($__errorArgs, $__bag); ?>
                 
                 <div>
                     <label for="prodi" class="block text-sm font-medium mb-2 dark:text-white">Program Studi</label>
-                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm" required>
+                    <select id="prodi" name="prodi" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <?php $__currentLoopData = $prodiOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prodi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <option value="<?php echo e($prodi); ?>" <?php echo e(old('prodi', $mahasiswa->prodi) == $prodi ? 'selected' : ''); ?>><?php echo e($prodi); ?></option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -98,10 +98,10 @@ unset($__errorArgs, $__bag); ?>
                     
                     <?php if($mahasiswa->google_id): ?>
                         <input id="email" name="email" type="email" 
-                               class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700" 
+                               class="py-3 px-4 block w-full border-gray-200 dark:border-neutral-700 rounded-lg text-sm bg-gray-100 dark:bg-neutral-700 dark:text-neutral-400" 
                                value="<?php echo e($mahasiswa->email); ?>" 
                                readonly>
-                        <p class="text-xs text-gray-500 mt-1">Email tidak bisa diubah karena akun mahasiswa terhubung dengan akun Google.</p>
+                        <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">Email tidak bisa diubah karena akun mahasiswa terhubung dengan akun Google.</p>
                     <?php else: ?>
                         <?php
                             $emailParts = explode('@gmail.com', old('email', $mahasiswa->email));
@@ -109,7 +109,7 @@ unset($__errorArgs, $__bag); ?>
                         ?>
                         <div class="flex rounded-lg shadow-sm">
                             <input type="text" id="email_username" 
-                                   class="py-3 px-4 block w-full border-gray-200 shadow-sm rounded-s-lg text-sm" 
+                                   class="py-3 px-4 block w-full border-gray-200 dark:border-neutral-700 rounded-tl-lg rounded-bl-lg text-sm" 
                                    value="<?php echo e($emailUsername); ?>" 
                                    placeholder="nama.unik" required>
                             <div class="px-4 inline-flex items-center min-w-fit rounded-e-md border border-s-0 border-gray-200 bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600">
@@ -133,8 +133,8 @@ unset($__errorArgs, $__bag); ?>
                 <?php if(!$mahasiswa->google_id): ?>
                     <div>
                         <label for="password" class="block text-sm font-medium mb-2 dark:text-white">Password Baru (Opsional)</label>
-                        <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
+                        <input type="password" name="password" id="password" placeholder="masukan password" class="py-3 px-4 block w-full border-gray-200 dark:border-neutral-700 rounded-lg text-sm">
+                        <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
                         <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -146,7 +146,7 @@ unset($__errorArgs, $__bag); ?>
                     </div>
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium mb-2 dark:text-white">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm">
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="masukan ulang password" class="py-3 px-4 block w-full border-gray-200 dark:border-neutral-700 rounded-lg text-sm">
                     </div>
                 <?php endif; ?>
             </div>

@@ -7,7 +7,7 @@
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Riwayat Unggahan: <?php echo e($mahasiswa->name); ?></h1>
             <p class="text-sm text-gray-500"><?php echo e($mahasiswa->email); ?></p>
             <?php if($mahasiswa->google_id): ?>
-                <span class="block bg-gray-300 w-14 px-2 text-xs rounded-full text-left text-blue-600 dark:text-blue-500">
+                <span class="block bg-gray-300 dark:bg-white w-14 px-2 text-xs rounded-full text-left text-blue-600 dark:text-blue-500">
                     Google
                 </span>
             <?php endif; ?>
@@ -33,7 +33,7 @@
         </div>
 
         
-        <div class="overflow-hidden">
+        <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
                 <thead class="bg-gray-50 dark:bg-neutral-700">
                     <tr>

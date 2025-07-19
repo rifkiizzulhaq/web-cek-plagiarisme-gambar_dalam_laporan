@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Kelola Akun Mahasiswa</h1>
+        <h1 class="lg:text-2xl font-bold text-gray-800 dark:text-white">Kelola Akun Mahasiswa</h1>
         
         <div class="flex gap-x-2">
             @if ($mahasiswas->isNotEmpty())
@@ -47,66 +47,66 @@
                         </form>
                     </div>
                     
-                    <div class="overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
-                        <thead class="bg-gray-50 dark:bg-neutral-700">
-                            <tr>
-                                <th scope="col" class="py-3 ps-4 pe-0">
-                                    <div class="flex items-center h-5">
-                                        <input id="hs-table-pagination-checkbox-all" type="checkbox" class="border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500">
-                                        <label for="hs-table-pagination-checkbox-all" class="sr-only">Checkbox</label>
-                                    </div>
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">No.</th>
-                                <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Nama</th>
-                                <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Email</th>
-                                <th scope="col" class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                            @forelse ($mahasiswas as $mahasiswa)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+                            <thead class="bg-gray-50 dark:bg-neutral-700">
                                 <tr>
-                                    <td class="py-3 ps-4">
+                                    <th scope="col" class="py-3 ps-4 pe-0">
                                         <div class="flex items-center h-5">
-                                            <input id="checkbox-{{ $mahasiswa->id }}" type="checkbox" value="{{ $mahasiswa->id }}" class="row-checkbox border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500">
-                                            <label for="checkbox-{{ $mahasiswa->id }}" class="sr-only">Checkbox</label>
+                                            <input id="hs-table-pagination-checkbox-all" type="checkbox" class="border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500">
+                                            <label for="hs-table-pagination-checkbox-all" class="sr-only">Checkbox</label>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-800 dark:text-neutral-200">{{ $mahasiswas->firstItem() + $loop->index }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{{ $mahasiswa->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                                        <div>
-                                            {{ $mahasiswa->email }}
-                                            @if ($mahasiswa->google_id)
-                                                <span class="block bg-gray-300 w-14 px-2 text-xs rounded-full text-left text-blue-600 dark:text-blue-500">
-                                                    Google
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                        <div class="row-actions invisible opacity-0 transition-opacity duration-300">
-                                            <div class="flex justify-end gap-x-2">
-                                                <a href="{{ route('admin.mahasiswa.show', $mahasiswa->id) }}" class="text-blue-600 hover:text-blue-800">Riwayat</a>
-                                                <a href="{{ route('admin.mahasiswa.edit', $mahasiswa->id) }}" class="text-yellow-600 hover:text-yellow-800">Edit</a>
-                                                <form action="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}" method="POST" class="delete-form">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800">Hapus</button>
-                                                </form>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">No.</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Nama</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                @forelse ($mahasiswas as $mahasiswa)
+                                    <tr>
+                                        <td class="py-3 ps-4">
+                                            <div class="flex items-center h-5">
+                                                <input id="checkbox-{{ $mahasiswa->id }}" type="checkbox" value="{{ $mahasiswa->id }}" class="row-checkbox border-gray-200 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500">
+                                                <label for="checkbox-{{ $mahasiswa->id }}" class="sr-only">Checkbox</label>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                        Tidak ada data mahasiswa.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-800 dark:text-neutral-200">{{ $mahasiswas->firstItem() + $loop->index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">{{ $mahasiswa->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                            <div>
+                                                {{ $mahasiswa->email }}
+                                                @if ($mahasiswa->google_id)
+                                                    <span class="block bg-gray-300 dark:bg-white w-14 px-2 text-xs rounded-full text-left text-blue-600 dark:text-blue-500">
+                                                        Google
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                            <div class="row-actions invisible opacity-0 transition-opacity duration-300">
+                                                <div class="flex justify-end gap-x-2">
+                                                    <a href="{{ route('admin.mahasiswa.show', $mahasiswa->id) }}" class="text-blue-600 hover:text-blue-800">Riwayat</a>
+                                                    <a href="{{ route('admin.mahasiswa.edit', $mahasiswa->id) }}" class="text-yellow-600 hover:text-yellow-800">Edit</a>
+                                                    <form action="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}" method="POST" class="delete-form">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-800">Hapus</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            Tidak ada data mahasiswa.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                     @if ($mahasiswas->total() > $mahasiswas->perPage())
                         <div class="py-1 px-4">
