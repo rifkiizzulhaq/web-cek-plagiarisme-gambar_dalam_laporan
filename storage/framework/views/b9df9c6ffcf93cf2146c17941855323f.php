@@ -221,6 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 progressBar.style.width = '0%';
                 progressArea.classList.add('hidden');
+            })
+            .finally(function () {
+                fileInput.value = '';
             });
     }
 

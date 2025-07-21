@@ -6,7 +6,7 @@
         <div class="px-6 py-4 border-b border-gray-200 dark:border-neutral-700 flex justify-between items-center">
             <div>
                 <div class="mb-4">
-                    <a href="{{ route('mahasiswa.cek-plagiarisme') }}" class="inline-flex items-center px-4 py-2 bg-red-400 dark:bg-neutral-700 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-200 uppercase tracking-widest hover:bg-red-500 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <a href="{{ route('mahasiswa.riwayat') }}" class="inline-flex items-center px-4 py-2 bg-red-400 dark:bg-neutral-700 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-200 uppercase tracking-widest hover:bg-red-500 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         Kembali
                     </a>
                 </div>
@@ -75,6 +75,27 @@
             border: 4px solid #facc15 !important;
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
         }
+        .plagiarized-image-container { position: relative; display: inline-block; }
+        .plagiarism-badge {
+            position: absolute !important;
+            top: 5px !important;
+            right: 5px !important;
+            width: 1.3rem !important;
+            height: 1.3rem !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-radius: 9999px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 10 !important;
+            border: 2px solid white !important;
+        }
+        .plagiarism-badge:hover {
+            background-color: #dc2626;
+        }
     </style>
 @endpush
 
@@ -120,6 +141,38 @@
                                                 if (reportItem) {
                                                     img.style.border = '4px solid #facc15';
                                                     img.style.boxShadow = '0 0 15px rgba(250, 204, 21, 0.5)';
+                                                    
+                                                    // 1. Bungkus gambar dengan div container
+                                                    const container = document.createElement('div');
+                                                    container.className = 'plagiarized-image-container';
+                                                    img.parentNode.insertBefore(container, img);
+                                                    container.appendChild(img);
+
+                                                    // 2. Buat lencana (badge) yang bisa diklik
+                                                    const badge = document.createElement('div');
+                                                    badge.className = 'plagiarism-badge';
+                                                    badge.textContent = `[${reportItem.source_image_index + 1}]`;
+                                                    badge.style.cursor = 'pointer'; 
+                                                    
+                                                    // 3. Tambahkan event klik untuk menampilkan SweetAlert
+                                                    badge.addEventListener('click', function() {
+                                                        const similarity = (reportItem.similarity * 100).toFixed(2);
+                                                        Swal.fire({
+                                                            title: 'Gambar Mirip Terdeteksi!',
+                                                            html: `
+                                                                <div class="text-start space-y-2">
+                                                                    <p><strong>Dokumen Sumber:</strong><br>${reportItem.match_doc_title}</p>
+                                                                    <p><strong>Tingkat Kemiripan:</strong><br>${similarity}%</p>
+                                                                </div>
+                                                            `,
+                                                            icon: 'warning'
+                                                        });
+                                                    });
+
+                                                    // 4. Masukkan lencana ke dalam container
+                                                    container.appendChild(badge);
+
+                                                    
                                                 }
                                         });
                                     }, 100);
