@@ -1,66 +1,235 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Web Cek Plagiarisme Gambar Dalam Laporan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Project ini adalah aplikasi web berbasis Laravel dan Python untuk membantu pengecekan plagiarisme pada laporan berformat `.docx`.
 
-## About Laravel
+Fitur utamanya mencakup:
+- autentikasi mahasiswa dan admin
+- login Google untuk pengguna tertentu
+- upload dokumen `.docx`
+- deteksi kemiripan teks
+- deteksi kemiripan gambar
+- preview dokumen hasil konversi
+- highlighting kalimat terindikasi dan sitasi sumber
+- CRUD data mahasiswa oleh admin
+- export data mahasiswa ke Excel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Backend web: Laravel 10
+- Frontend build tool: Vite + Tailwind CSS + Alpine.js
+- Python service: Flask
+- Database: MySQL
+- Konversi dokumen: `python-docx`, `phpoffice/phpword`, `mammoth`
+- Image similarity: `torch`, `torchvision`, `timm`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Struktur Singkat
 
-## Learning Laravel
+- `app/` berisi controller, model, middleware, rules, dan command Laravel
+- `resources/views/` berisi blade untuk admin, mahasiswa, auth, dan preview dokumen
+- `database/migrations/` berisi skema database Laravel dan tabel pendukung analisis
+- `database/seeders/` berisi seeder role dan akun awal
+- `Python/` berisi service Flask untuk ekstraksi dokumen dan analisis plagiarisme
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Prasyarat
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Sebelum setup, pastikan environment memiliki:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.1+
+- Composer
+- Node.js 18+ dan npm
+- Python 3.9+ disarankan
+- MySQL / MariaDB
 
-## Laravel Sponsors
+## Environment Yang Perlu Diisi
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Setelah copy `.env.example` menjadi `.env`, minimal isi bagian berikut:
 
-### Premium Partners
+```env
+APP_NAME="Web Cek Plagiarisme"
+APP_URL=http://127.0.0.1:8000
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=plagiarism_db
+DB_USERNAME=root
+DB_PASSWORD=
 
-## Contributing
+PYTHON_API_URL=http://127.0.0.1:5000
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/auth/google/callback
+```
 
-## Code of Conduct
+Catatan:
+- `DB_DATABASE` sebaiknya sama untuk Laravel dan service Python.
+- `PYTHON_API_URL` harus mengarah ke service Flask yang berjalan.
+- konfigurasi Google opsional, tetapi wajib jika fitur login Google ingin dipakai.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Cara Setup
 
-## Security Vulnerabilities
+### 1. Clone repository
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+git clone https://github.com/rifkiizzulhaq/web-cek-plagiarisme-gambar_dalam_laporan.git
+cd web-cek-plagiarisme-gambar_dalam_laporan
+```
 
-## License
+### 2. Setup Laravel
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+```
+
+Jika `copy` tidak tersedia, buat `.env` secara manual dari `.env.example`.
+
+### 3. Setup frontend
+
+```bash
+npm install
+npm run build
+```
+
+Saat development, gunakan:
+
+```bash
+npm run dev
+```
+
+### 4. Setup service Python
+
+Masuk ke folder Python:
+
+```bash
+cd Python
+python -m venv .venv
+```
+
+Aktifkan virtual environment:
+
+Windows PowerShell:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Lalu install dependency:
+
+```bash
+pip install -r requirements.txt
+```
+
+Jalankan service Flask:
+
+```bash
+python main.py
+```
+
+Service Python default berjalan di `http://127.0.0.1:5000`.
+
+### 5. Jalankan aplikasi Laravel
+
+Di root project:
+
+```bash
+php artisan serve
+```
+
+Jika mode development frontend dipakai, jalankan bersamaan:
+
+```bash
+npm run dev
+```
+
+## Urutan Menjalankan Project Saat Development
+
+Biasanya terminal yang dibutuhkan ada 3:
+
+1. `php artisan serve`
+2. `npm run dev`
+3. `cd Python` lalu `python main.py`
+
+## Seeder Default
+
+Seeder akan membuat role dan akun awal.
+
+Akun admin default:
+
+- Email: `admin@gmail.com`
+- Password: `12345678`
+
+Jika ingin menambah atau mengubah akun awal, edit file:
+- `database/seeders/UserSeeder.php`
+- `database/seeders/RoleSeeder.php`
+
+## Fitur Utama Aplikasi
+
+### Mahasiswa
+
+- melengkapi profil
+- upload laporan `.docx`
+- melihat hasil kemiripan teks dan gambar
+- melihat riwayat upload
+- membuka preview dokumen dengan highlight dan sitasi sumber
+
+### Admin
+
+- login admin
+- CRUD mahasiswa
+- export data mahasiswa
+- melihat dokumen yang dimiliki mahasiswa dari halaman detail
+
+## Command Tambahan
+
+Untuk membersihkan dokumen upload dan data plagiarisme tanpa menghapus akun user:
+
+```bash
+php artisan docs:clear
+```
+
+Command ini akan membersihkan:
+- tabel hasil analisis
+- file upload dokumen
+- hasil ekstraksi gambar Python
+
+Gunakan dengan hati-hati.
+
+## Catatan Teknis
+
+- Dokumen yang sama dicek dengan hash untuk mencegah upload duplikat.
+- Service Python membaca dokumen, memecah teks, menyimpan metadata, lalu menghitung kemiripan teks dan gambar.
+- Preview dokumen di browser memanfaatkan `mammoth` untuk menampilkan konten `.docx`.
+- Beberapa model AI dan file ekstraksi bisa berukuran besar, jadi hindari memasukkan file generated ke commit yang tidak perlu.
+
+## Troubleshooting
+
+### Laravel tidak bisa terhubung ke Python
+
+Periksa:
+- `PYTHON_API_URL` di `.env`
+- service Flask benar-benar berjalan
+- port `5000` tidak dipakai aplikasi lain
+
+### Upload gagal karena database
+
+Periksa:
+- database sudah dibuat
+- `.env` berisi `DB_*` yang benar
+- migrasi sudah dijalankan
+
+### Login Google tidak jalan
+
+Periksa:
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI`
+- redirect URI di Google Console harus sama persis
+
+## Lisensi
+
+Project ini menggunakan basis Laravel yang berlisensi MIT. Kode pengembangan project ini mengikuti kebutuhan aplikasi skripsi / akademik sesuai repository ini.
