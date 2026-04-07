@@ -59,8 +59,28 @@
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
                     Pratinjau Dokumen
                 </h2>
-                <div id="document-content" class="prose dark:prose-invert max-w-none bg-gray-50 dark:bg-neutral-900 rounded-lg p-4 overflow-auto max-h-[90vh] border dark:border-neutral-700">
+                
+                <!-- Toggle untuk menampilkan highlighting -->
+                <div class="mb-4 flex items-center space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="highlight-toggle" class="form-checkbox h-5 w-5 text-yellow-500" checked>
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tampilkan Highlighting Kuning & Sitasi [1]</span>
+                    </label>
+                    <button id="show-citations" class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">
+                        Lihat Daftar Sitasi
+                    </button>
+                </div>
+                
+                <div id="document-content" class="prose max-w-none dark:prose-invert">
                     <p>Memuat pratinjau dokumen...</p>
+                </div>
+                
+                <!-- Loading indicator untuk plagiarism results -->
+                <div id="plagiarism-loading" class="hidden mt-4">
+                    <div class="flex items-center justify-center p-4">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                        <span class="ml-2 text-sm text-gray-600">Memuat hasil deteksi plagiarisme...</span>
+                    </div>
                 </div>
             </div>
         @endif
@@ -96,6 +116,42 @@
         .plagiarism-badge:hover {
             background-color: #dc2626;
         }
+        
+        /* Styles untuk highlighting teks plagiarisme - EXACT format referensi */
+        .highlight {
+            background-color: #ffff99 !important;
+            display: inline !important;
+        }
+        
+        .highlight:hover {
+            background-color: #ffeb3b !important;
+        }
+        
+        /* Citation links - mengikuti style referensi */
+        a[href='#'] {
+            color: #3498db !important;
+            text-decoration: none !important;
+            font-weight: normal !important;
+            margin-left: 2px !important;
+            cursor: pointer !important;
+        }
+        
+        a[href='#']:hover {
+            color: #2980b9 !important;
+            text-decoration: underline !important;
+        }
+        
+        .similarity-tooltip {
+            position: absolute;
+            background-color: #1f2937;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            z-index: 1000;
+            display: none;
+            max-width: 200px;
+        }
     </style>
 @endpush
 
@@ -108,6 +164,7 @@
                 const imagePlagiarismReport = @json($image_plagiarism_report ?? []);
                 
                 if (contentDiv) {
+                    // Load document content
                     fetch("{{ route('mahasiswa.get.file.content', ['file_id' => $file->id]) }}")
                         .then(response => {
                             if (!response.ok) throw new Error('Gagal memuat file dari server.');
@@ -125,6 +182,9 @@
                                             statsCards.classList.remove('hidden');
                                         }
 
+                                        // Load plagiarism results for text highlighting
+                                        loadPlagiarismResults({{ $file->id }});
+                                        
                                         setTimeout(() => {
                                             const imagesInDom = contentDiv.querySelectorAll('img');
                                             imagesInDom.forEach((img, index) => {
@@ -182,6 +242,237 @@
                     });
                 }
             @endif
+            
+            // Global variables untuk plagiarism data
+            let plagiarismData = null;
+            let citationsMap = {};
+            
+            // Function untuk load plagiarism results
+            function loadPlagiarismResults(fileId) {
+                const loadingDiv = document.getElementById('plagiarism-loading');
+                loadingDiv.classList.remove('hidden');
+                
+                fetch(`{{ url('/mahasiswa/cek-plagiarisme/results') }}/${fileId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingDiv.classList.add('hidden');
+                        if (data.success) {
+                            plagiarismData = data.data;
+                            setupCitationsMap();
+                            highlightPlagiarizedText();
+                        } else {
+                            console.error('Error loading plagiarism results:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        loadingDiv.classList.add('hidden');
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Function untuk setup citations map
+            function setupCitationsMap() {
+                if (!plagiarismData || !plagiarismData.citations) return;
+                
+                plagiarismData.citations.forEach(citation => {
+                    citationsMap[citation.citation_number] = citation;
+                });
+            }
+            
+            // Function untuk highlight plagiarized text
+            function highlightPlagiarizedText() {
+                if (!plagiarismData || !plagiarismData.sentences) {
+                    console.log('No plagiarism data available for highlighting');
+                    return;
+                }
+                
+                const contentDiv = document.getElementById('document-content');
+                let contentHTML = contentDiv.innerHTML;
+                
+                // Clear existing citations map
+                citationsMap = {};
+                
+                // Build citations map first
+                if (plagiarismData.citations) {
+                    plagiarismData.citations.forEach(citation => {
+                        citationsMap[citation.citation_number] = citation;
+                    });
+                }
+                
+                // Process each sentence for highlighting
+                plagiarismData.sentences.forEach(sentence => {
+                    if (sentence.is_plagiarized && sentence.citations && sentence.citations.length > 0) {
+                        const originalText = sentence.text.trim();
+                        
+                        // Create citation links
+                        const citationLinks = sentence.citations.map(citationNum => {
+                            const citation = citationsMap[citationNum];
+                            if (!citation) return '';
+                            
+                            const pageNum = citation.page || 'Unknown';
+                            const similarity = ((citation.similarity_score || 0) * 100).toFixed(1);
+                            const docTitle = citation.title || 'Unknown Document';
+                            
+                            return `<a href='#' onclick="showSourceDocument(${citationNum})" title="Sumber: ${docTitle} - Halaman: ${pageNum} - Kemiripan: ${similarity}%" style="color: #3498db; text-decoration: none; font-weight: normal; margin-left: 2px;">[${citationNum}]</a>`;
+                        }).join('');
+                        
+                        // Create highlighted text with citations
+                        const highlightedText = `<span class='highlight' style="background-color: #ffeb3b; padding: 2px 4px; border-radius: 3px;">${originalText}</span>${citationLinks}`;
+                        
+                        // Replace text in HTML - use more precise replacement
+                        try {
+                            // Simple text replacement for exact matches
+                            const textToReplace = originalText;
+                            if (contentHTML.includes(textToReplace)) {
+                                contentHTML = contentHTML.replace(textToReplace, highlightedText);
+                            }
+                        } catch (error) {
+                            console.error('Error highlighting sentence:', error);
+                        }
+                    }
+                });
+                
+                contentDiv.innerHTML = contentHTML;
+                console.log('Highlighting completed. Total citations:', Object.keys(citationsMap).length);
+            }
+            
+            // Function untuk show source document
+            function showSourceDocument(citationNumber) {
+                const citation = citationsMap[citationNumber];
+                if (!citation) {
+                    Swal.fire('Error', 'Sitasi tidak ditemukan', 'error');
+                    return;
+                }
+                
+                Swal.fire({
+                    title: 'Memuat Dokumen Sumber...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                fetch(`{{ url('/mahasiswa/cek-plagiarisme/source') }}/${citation.source_doc_id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showSourceDocumentModal(data.data, citation);
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Gagal memuat dokumen sumber', 'error');
+                    });
+            }
+            
+            // Function untuk show source document modal
+            function showSourceDocumentModal(sourceDoc, citation) {
+                const similarity = (citation.similarity_score * 100).toFixed(1);
+                const pageText = sourceDoc.pages.find(p => p.page === citation.page)?.text || 'Teks tidak ditemukan';
+                
+                Swal.fire({
+                    title: `Dokumen Sumber [${citation.citation_number}]`,
+                    html: `
+                        <div class="text-left space-y-4">
+                            <div class="bg-gray-50 p-3 rounded">
+                                <strong>Judul:</strong> ${sourceDoc.title}<br>
+                                <strong>Penulis:</strong> ${sourceDoc.author || 'Tidak diketahui'}<br>
+                                <strong>Halaman:</strong> ${citation.page}<br>
+                                <strong>Tingkat Kemiripan:</strong> <span class="text-red-600 font-bold">${similarity}%</span>
+                            </div>
+                            <div>
+                                <strong>Konten Halaman ${citation.page}:</strong>
+                                <div class="bg-white border rounded p-3 max-h-60 overflow-y-auto text-sm">
+                                    ${pageText.substring(0, 500)}${pageText.length > 500 ? '...' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    width: '600px',
+                    showCancelButton: true,
+                    confirmButtonText: 'Buka di Tab Baru',
+                    cancelButtonText: 'Tutup',
+                    confirmButtonColor: '#3b82f6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Open source document in new tab (if you have a route for it)
+                        const newWindow = window.open('', '_blank');
+                        newWindow.document.write(`
+                            <html>
+                                <head>
+                                    <title>${sourceDoc.title}</title>
+                                    <style>
+                                        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
+                                        .header { border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+                                        .page { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="header">
+                                        <h1>${sourceDoc.title}</h1>
+                                        <p><strong>Penulis:</strong> ${sourceDoc.author || 'Tidak diketahui'}</p>
+                                        <p><strong>Tanggal Upload:</strong> ${sourceDoc.uploaded_at ? new Date(sourceDoc.uploaded_at).toLocaleDateString('id-ID') : 'Tidak diketahui'}</p>
+                                    </div>
+                                    ${sourceDoc.pages.map(page => `
+                                        <div class="page">
+                                            <h3>Halaman ${page.page}</h3>
+                                            <p>${page.text.replace(/\n/g, '<br>')}</p>
+                                        </div>
+                                    `).join('')}
+                                </body>
+                            </html>
+                        `);
+                    }
+                });
+            }
+            
+            // Event listeners
+            document.getElementById('highlight-toggle').addEventListener('change', function() {
+                const contentDiv = document.getElementById('document-content');
+                if (this.checked) {
+                    highlightPlagiarizedText();
+                } else {
+                    // Remove highlighting - EXACT format referensi
+                    const highlightedElements = contentDiv.querySelectorAll('.highlight');
+                    const citationLinks = contentDiv.querySelectorAll('a[href="#"]');
+                    
+                    highlightedElements.forEach(el => {
+                        const parent = el.parentNode;
+                        parent.replaceChild(document.createTextNode(el.textContent), el);
+                        parent.normalize();
+                    });
+                    
+                    citationLinks.forEach(link => {
+                        link.remove();
+                    });
+                }
+            });
+            
+            document.getElementById('show-citations').addEventListener('click', function() {
+                if (!plagiarismData || !plagiarismData.citations) {
+                    Swal.fire('Info', 'Belum ada data sitasi yang dimuat', 'info');
+                    return;
+                }
+                
+                const citationsList = plagiarismData.citations.map(citation => {
+                    const similarity = (citation.similarity_score * 100).toFixed(1);
+                    return `
+                        <div class="border-b pb-2 mb-2">
+                            <strong>[${citation.citation_number}]</strong> ${citation.title}<br>
+                            <small class="text-gray-600">Halaman ${citation.page} - Kemiripan: ${similarity}%</small>
+                        </div>
+                    `;
+                }).join('');
+                
+                Swal.fire({
+                    title: 'Daftar Sitasi',
+                    html: `<div class="text-left max-h-60 overflow-y-auto">${citationsList}</div>`,
+                    width: '500px',
+                    confirmButtonText: 'Tutup'
+                });
+            });
         });
     </script>
 @endpush

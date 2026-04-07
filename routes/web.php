@@ -56,6 +56,10 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/cek-plagiarisme/document/{file_id}', [UserController::class, 'viewDocument'])->name('view.document');
         Route::get('/cek-plagiarisme/viewer/{file_id}', [UserController::class, 'showViewer'])->name('interactive.viewer');
         Route::get('/cek-plagiarisme/file/{file_id}/content', [UserController::class, 'getFileContent'])->name('get.file.content');
+        
+        // Routes untuk fitur highlighting dan sitasi
+        Route::get('/cek-plagiarisme/results/{file_id}', [UserController::class, 'getPlagiarismResults'])->name('get.plagiarism.results');
+        Route::get('/cek-plagiarisme/source/{doc_id}', [UserController::class, 'getSourceDocument'])->name('get.source.document');
     });
 
     // Route untuk admin

@@ -7,6 +7,10 @@ import mysql.connector
 from utils_py.utils import split_and_fix_sentences
 from dotenv import load_dotenv
 from image_similarity_py.image_similarity import ImageSimilarityModel
+from utils_py.needleman_wunsch import needleman_wunsch_similarity
+from utils_py.improved_similarity import enhanced_plagiarism_detection
+
+
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 load_dotenv()
@@ -18,7 +22,7 @@ class DatabaseManager:
                 host=os.getenv('DB_HOST', 'localhost'),
                 user=os.getenv('DB_USERNAME', 'root'),
                 password=os.getenv('DB_PASSWORD', ''),
-                database=os.getenv('DB_DATABASE', 'myskripsi')
+                database=os.getenv('DB_DATABASE', 'plagiarism_db')
             )
             self.cursor = self.connection.cursor(dictionary=True)
             logging.info("Database connection established successfully")
@@ -183,83 +187,139 @@ class DatabaseManager:
             raise
 
     def calculate_plagiarism(self, doc_id):
+        import time
+        start_time = time.time()
+        
         try:
-            logging.info(f"Calculating plagiarism for document ID: {doc_id}")
+            # Ambil kalimat dari dokumen yang sedang dicek
+            self.cursor.execute("""
+                SELECT hl.page_number, sh.text
+                FROM hash_locations hl
+                JOIN sentence_hashes sh ON hl.hash_id = sh.id
+                WHERE hl.doc_id = %s
+                ORDER BY hl.page_number, hl.id
+            """, (doc_id,))
+            current_sentences = self.cursor.fetchall()
+            # (Opsional) Batasi hanya 200 kalimat awal jika dokumen sangat besar
+            current_sentences = current_sentences[:200]
+            
+            logging.info(f"Processing {len(current_sentences)} sentences for doc_id: {doc_id}")
 
-            self.cursor.execute("SELECT COUNT(id) FROM document_hashes")
-            doc_count = self.cursor.fetchone()['COUNT(id)']
+            # Ambil kalimat dari dokumen lain (optimized: lebih sedikit dan lebih relevan)
+            self.cursor.execute("""
+                SELECT hl.doc_id, hl.page_number, sh.text, d.title
+                FROM hash_locations hl
+                JOIN sentence_hashes sh ON hl.hash_id = sh.id
+                JOIN documents d ON hl.doc_id = d.doc_id
+                WHERE hl.doc_id != %s 
+                AND LENGTH(sh.text) BETWEEN 20 AND 300
+                ORDER BY d.created_at DESC
+                LIMIT 2000
+            """, (doc_id,))
+            other_sentences = self.cursor.fetchall()
 
-            base_query = """
-                WITH current_doc_sentences AS (
-                    SELECT DISTINCT sh.id as sentence_id, sh.text as sentence_text, sh.hash_value, hl.page_number
-                    FROM hash_locations hl JOIN sentence_hashes sh ON hl.hash_id = sh.id
-                    WHERE hl.doc_id = %s
-                ),
-                matching_sentences AS (
-                    SELECT cds.sentence_text, cds.page_number as source_page,
-                        hl2.doc_id as matching_doc_id, hl2.page_number as matching_page,
-                        d.title as matching_doc_title
-                    FROM current_doc_sentences cds
-                    JOIN hash_locations hl2 ON hl2.hash_id IN (SELECT id FROM sentence_hashes WHERE hash_value = cds.hash_value)
-                    LEFT JOIN documents d ON hl2.doc_id = d.doc_id
-                    {where_clause}
-                )
-                SELECT cds.sentence_text as text, cds.page_number,
-                    COUNT(DISTINCT ms.matching_doc_id) as match_count,
-                    GROUP_CONCAT(DISTINCT CONCAT(ms.matching_doc_id, ':', COALESCE(ms.matching_doc_title, CONCAT('Document ', ms.matching_doc_id)), ':', ms.matching_page) SEPARATOR '|') as matching_docs
-                FROM current_doc_sentences cds
-                LEFT JOIN matching_sentences ms ON cds.sentence_text = ms.sentence_text
-                GROUP BY cds.sentence_id, cds.sentence_text, cds.page_number
-                ORDER BY cds.page_number, cds.sentence_id
-            """
-
-            where_clause = ""
-            params = (doc_id,)
-
-            if doc_count > 1:
-                where_clause = "WHERE hl2.doc_id != %s"
-                params = (doc_id, doc_id)
-
-            final_query = base_query.format(where_clause=where_clause)
-
-            self.cursor.execute(final_query, params)
-
-            results = self.cursor.fetchall()
-
-            total_sentences = len(results)
+            total_sentences = len(current_sentences)
             plagiarized_sentences = []
-            all_sentences = []
 
-            for row in results:
+            for row in current_sentences:
+                current_text = self._normalize_text(row['text'])
+                # Lewati kalimat yang terlalu pendek atau terlalu panjang
+                if len(current_text) < 20 or len(current_text) > 300:
+                    continue  # skip kalimat yang terlalu pendek atau panjang
+                page_number = row['page_number']
+
                 other_locations = []
-                matching_docs_str = row.get('matching_docs')
-                if matching_docs_str:
-                    for doc_info in matching_docs_str.split('|'):
-                        if doc_info:
-                            parts = doc_info.split(':')
-                            if len(parts) >= 3:
-                                doc_id_str, title, page = parts[0], parts[1], parts[2]
-                                other_locations.append({'doc_id': int(doc_id_str), 'title': title, 'page': int(page)})
+                is_plagiarized = False
+                best_score = 0.0
+                best_method = "unknown"
 
-                is_plagiarized = len(other_locations) > 0
+                for other in other_sentences:
+                    other_text = self._normalize_text(other['text'])
+                    
+                    # Use enhanced plagiarism detection with multiple similarity measures
+                    result = enhanced_plagiarism_detection(current_text, other_text, threshold=0.75)
+                    
+                    if result['is_plagiarized']:
+                        is_plagiarized = True
+                        similarity_score = result['max_similarity']
+                        
+                        # Keep track of best score for this sentence
+                        if similarity_score > best_score:
+                            best_score = similarity_score
+                            best_method = self._get_best_method(result['scores'])
+                        
+                        other_locations.append({
+                            'doc_id': other['doc_id'],
+                            'title': other['title'],
+                            'page': other['page_number'],
+                            'similarity_score': round(similarity_score, 4),
+                            'detection_method': best_method,
+                            'detailed_scores': {
+                                'word': round(result['scores']['word_similarity'], 4),
+                                'character': round(result['scores']['character_similarity'], 4),
+                                'sequence': round(result['scores']['sequence_similarity'], 4),
+                                'hybrid': round(result['scores']['hybrid_similarity'], 4)
+                            }
+                        })
+                        
+                        # Stop if we find a very strong match (>0.90)
+                        if similarity_score > 0.90:
+                            break
+                        
+                        # Limit matches per sentence to avoid too many results
+                        if len(other_locations) >= 5:
+                            break
+
                 if is_plagiarized:
-                    plagiarized_sentences.append({'text': row['text'], 'matches': other_locations})
+                    plagiarized_sentences.append({
+                        'text': row['text'],
+                        'matches': other_locations,
+                        'best_similarity': round(best_score, 4),
+                        'detection_method': best_method
+                    })
 
-                all_sentences.append({'text': row['text'], 'plagiarized': is_plagiarized, 'other_locations': other_locations, 'page': row['page_number']})
-
-            plagiarism_percentage = round((len(plagiarized_sentences) / total_sentences * 100), 2) if total_sentences > 0 else 0
-
-            return total_sentences, plagiarized_sentences, plagiarism_percentage
+            similarity_percentage = round((len(plagiarized_sentences) / total_sentences * 100), 2) if total_sentences > 0 else 0
+            
+            # Performance logging
+            end_time = time.time()
+            processing_time = end_time - start_time
+            logging.info(f"Plagiarism calculation completed in {processing_time:.2f} seconds")
+            logging.info(f"Found {len(plagiarized_sentences)} plagiarized sentences out of {total_sentences} total")
+            
+            return total_sentences, plagiarized_sentences, similarity_percentage
 
         except mysql.connector.Error as err:
             logging.error(f"Error calculating plagiarism: {err}")
             raise
+
+
 
     def _normalize_text(self, text):
         text = text.lower()
         text = ' '.join(text.split())
         text = ''.join(c for c in text if c.isalnum() or c.isspace())
         return text
+
+    def _get_best_method(self, scores):
+        """
+        Determine which similarity method gave the highest score
+        """
+        max_score = 0
+        best_method = "character"
+        
+        for method, score in scores.items():
+            if score > max_score:
+                max_score = score
+                if method == 'word_similarity':
+                    best_method = "word"
+                elif method == 'sequence_similarity':
+                    best_method = "sequence"
+                elif method == 'hybrid_similarity':
+                    best_method = "hybrid"
+                else:
+                    best_method = "character"
+        
+        return best_method
 
     def _hash_text(self, text):
         return hashlib.sha256(text.encode('utf-8')).hexdigest()

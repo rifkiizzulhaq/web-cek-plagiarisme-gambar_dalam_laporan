@@ -156,6 +156,58 @@ class UserController extends Controller
         ]);
     }
 
+    public function getPlagiarismResults($file_id)
+    {
+        $file = File::findOrFail($file_id);
+        
+        if (auth()->id() !== $file->user_id && !optional(auth()->user())->hasRole('admin')) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        try {
+            $apiUrl = $this->apiUrl;
+            $response = Http::timeout(60)->get($apiUrl . '/api/get-result/' . $file_id);
+            
+            if ($response->successful()) {
+                return response()->json($response->json());
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil hasil plagiarisme'
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error getting plagiarism results: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil hasil plagiarisme'
+            ], 500);
+        }
+    }
+
+    public function getSourceDocument($doc_id)
+    {
+        try {
+            $apiUrl = $this->apiUrl;
+            $response = Http::timeout(30)->get($apiUrl . '/api/get-source-document/' . $doc_id);
+            
+            if ($response->successful()) {
+                return response()->json($response->json());
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dokumen sumber tidak ditemukan'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error getting source document: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil dokumen sumber'
+            ], 500);
+        }
+    }
+
     public function getFileContent($file_id)
     {
         $file = File::findOrFail($file_id);

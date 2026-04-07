@@ -46,11 +46,14 @@ class RegisteredUserController extends Controller
             'email.regex' => 'Nama pengguna email harus memiliki minimal 10 karakter.'
         ]);
     
+        // Cari role mahasiswa, jika tidak ada buat otomatis
+        $mahasiswaRole = \App\Models\Role::firstOrCreate(['name' => 'mahasiswa']);
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 2,
+            'role_id' => $mahasiswaRole->id,
         ]);
     
         event(new Registered($user));

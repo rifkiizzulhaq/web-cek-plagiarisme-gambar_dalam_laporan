@@ -14,17 +14,23 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('12345678'),
-            'role_id' => 1,
-        ]);
-        // User::create([
-        //     'name' => 'rifki',
-        //     'email' => 'rifki@gmail.com',
-        //     'password' => Hash::make('12345678'),
-        //     'role_id' => 2,
-        // ]);
+        // Gunakan firstOrCreate untuk mencegah duplicate entry
+        User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('12345678'),
+                'role_id' => 1,
+            ]
+        );
+        
+        // User::firstOrCreate(
+        //     ['email' => 'rifki@gmail.com'],
+        //     [
+        //         'name' => 'rifki',
+        //         'password' => Hash::make('12345678'),
+        //         'role_id' => 2,
+        //     ]
+        // );
     }
 }
