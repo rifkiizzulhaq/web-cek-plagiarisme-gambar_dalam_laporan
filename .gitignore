@@ -17,3 +17,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+*.pyc
+Python/**/__pycache__/
+Python/extract_data_py/
+storage/app/
+storage/framework/cache/data/
+storage/framework/sessions/
+storage/framework/views/
+storage/logs/*.log
