@@ -1,10 +1,14 @@
 * text=auto eol=lf
 
 *.blade.php diff=html
+*.blade.php linguist-language=PHP
 *.css diff=css
 *.html diff=html
 *.md diff=markdown
 *.php diff=php
+
+# Treat generated/cache artifacts as non-source for GitHub language stats.
+storage/framework/** linguist-generated=true
 
 /.github export-ignore
 CHANGELOG.md export-ignore
